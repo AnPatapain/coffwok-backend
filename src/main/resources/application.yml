@@ -1,0 +1,21 @@
+spring:
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: users
+      username: anPatapain
+      password: Keanlk192002
+
+app:
+  cors:
+    allowedOrigins: http://localhost:3000,http://localhost:8080
+
+  auth:
+    tokenSecret: Keanlk192002
+    tokenExpirationSec: 864000000
+
+  oauth2:
+    authorizedRedirectUris:
+      - http://localhost:3000/oauth2/redirect
+
