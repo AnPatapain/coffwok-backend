@@ -27,6 +27,11 @@ public class User {
 
     private Role role;
 
+    @NotBlank
+    private AuthProvider provider;
+
+    private String providerId;
+
     public User(String email, String password) {
         this.email = email;
         this.password = password;
