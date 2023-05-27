@@ -1,4 +1,4 @@
-package com.anpatapain.coffwok.userAspect.model;
+package com.anpatapain.coffwok.user.model;
 
 public enum Role {
     ROLE_USER,

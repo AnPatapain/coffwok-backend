@@ -1,4 +1,4 @@
-package com.anpatapain.coffwok.userAspect.model;
+package com.anpatapain.coffwok.user.model;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,10 +17,6 @@ public class User {
     private String id;
 
     @NotBlank
-    @Size(min = 3, max=20)
-    private String name;
-
-    @NotBlank
     @Size(max = 50)
     @Email
     private String email;
@@ -31,8 +27,7 @@ public class User {
 
     private Role role;
 
-    public User(String name, String email, String password) {
-        this.name = name;
+    public User(String email, String password) {
         this.email = email;
         this.password = password;
     }
