@@ -4,8 +4,7 @@ spring:
       host: localhost
       port: 27017
       database: coffwok_dev
-      username: anPatapain
-      password: Keanlk192002
+      authentication-database: admin
 
 app:
   cors:
