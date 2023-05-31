@@ -71,7 +71,7 @@ public class AuthController {
                 passwordEncoder.encode(signupRequest.getPassword())
         );
 
-        user.setProvider(AuthProvider.LOCAL);
+        user.setProvider(AuthProvider.local);
         if(signupRequest.getRole() == null) {
             user.setRole(Role.ROLE_USER);
         }else {

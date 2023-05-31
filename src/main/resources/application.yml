@@ -6,6 +6,18 @@ spring:
       database: coffwok_dev
       authentication-database: admin
 
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 16617165058-nci3drur9g8dkd7ij6iv9b197dqomam9.apps.googleusercontent.com
+            client-secret: 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
+            redirect-uri: "{baseUrl}/oauth2/callback/{registrationId}"
+            scope:
+              - email
+              - profile
+
 app:
   cors:
     allowedOrigins: http://localhost:3000,http://localhost:8080,http://localhost:5173
@@ -16,5 +28,5 @@ app:
 
   oauth2:
     authorizedRedirectUris:
-      - http://localhost:3000/oauth2/redirect
+      - http://localhost:5173/oauth2/redirect
 

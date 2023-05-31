@@ -3,6 +3,10 @@ package com.anpatapain.coffwok.security.config;
 import com.anpatapain.coffwok.security.jwt.AuthTokenEntryPoint;
 import com.anpatapain.coffwok.security.jwt.AuthTokenFilter;
 import com.anpatapain.coffwok.security.jwt.CustomUserDetailsService;
+import com.anpatapain.coffwok.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
+import com.anpatapain.coffwok.security.oauth2.OAuth2FailureHandler;
+import com.anpatapain.coffwok.security.oauth2.OAuth2SuccessHandler;
+import com.anpatapain.coffwok.security.oauth2.OAuth2UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +19,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -27,10 +33,30 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 )
 public class SecurityConfig {
     @Autowired
+    private AuthTokenEntryPoint authTokenEntryPoint;
+
+    // For local strategy
+    @Autowired
     private CustomUserDetailsService userDetailsService;
 
+    // For OAuth2 strategy
     @Autowired
-    private AuthTokenEntryPoint authTokenEntryPoint;
+    private OAuth2UserService oauth2UserService;
+
+    @Autowired
+    private OAuth2SuccessHandler oAuth2SuccessHandler;
+
+    @Autowired
+    private OAuth2FailureHandler oAuth2FailureHandler;
+
+    @Autowired
+    private HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
+
+
+    @Bean
+    public HttpCookieOAuth2AuthorizationRequestRepository cookieAuthorizationRequestRepository() {
+        return new HttpCookieOAuth2AuthorizationRequestRepository();
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {return new BCryptPasswordEncoder();}
@@ -53,6 +79,7 @@ public class SecurityConfig {
         return new AuthTokenFilter();
     }
 
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
@@ -62,7 +89,23 @@ public class SecurityConfig {
                 .exceptionHandling().authenticationEntryPoint(authTokenEntryPoint).and()
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/api/auth/**").permitAll()
-                        .anyRequest().authenticated());
+                        .requestMatchers("/oauth2/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+
+                .oauth2Login()
+                        .authorizationEndpoint()
+                            .baseUri("/oauth2/authorize")
+                            .authorizationRequestRepository(cookieAuthorizationRequestRepository())
+                            .and()
+                        .redirectionEndpoint()
+                            .baseUri("/oauth2/callback/*")
+                            .and()
+                        .userInfoEndpoint()
+                            .userService(oauth2UserService)
+                            .and()
+                        .successHandler(oAuth2SuccessHandler)
+                        .failureHandler(oAuth2FailureHandler);
 
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);

@@ -5,19 +5,19 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
-public class UserPrincipal implements UserDetails {
+public class UserPrincipal implements UserDetails, OAuth2User {
     private String id;
     private String email;
     @JsonIgnore
     private String password;
 
     private Collection<? extends GrantedAuthority> authorities;
+
+    private Map<String, Object> attributes; // For oauth2 user
 
     public UserPrincipal(String id, String email, String password,
                          Collection<? extends GrantedAuthority> authorities) {
@@ -37,10 +37,15 @@ public class UserPrincipal implements UserDetails {
         return new UserPrincipal(user.getId(), user.getEmail(), user.getPassword(), authorities);
     }
 
+    public static UserPrincipal build(User user, Map<String, Object> attributes) {
+        UserPrincipal userPrincipal = UserPrincipal.build(user);
+        userPrincipal.setAttributes(attributes);
+        return userPrincipal;
+    }
+
     public String getId() {
         return id;
     }
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -88,5 +93,19 @@ public class UserPrincipal implements UserDetails {
         }
         UserPrincipal user = (UserPrincipal) o;
         return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public String getName() {
+        return id;
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
     }
 }
