@@ -9,6 +9,9 @@ import com.anpatapain.coffwok.user.UserRepository;
 import com.anpatapain.coffwok.user.model.AuthProvider;
 import com.anpatapain.coffwok.user.model.Role;
 import com.anpatapain.coffwok.user.model.User;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,22 +24,28 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-    @Autowired
     private AuthenticationManager authenticationManager;
 
-    @Autowired
     private UserRepository userRepository;
 
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
     private JwtUtils jwtUtils;
+
+    private Logger logger = LoggerFactory.getLogger(AuthController.class);
+    @Autowired
+    public AuthController(AuthenticationManager authenticationManager,
+                          UserRepository userRepository,
+                          PasswordEncoder passwordEncoder,
+                          JwtUtils jwtUtils) {
+        this.authenticationManager = authenticationManager;
+        this.userRepository = userRepository;
+        this.jwtUtils = jwtUtils;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
@@ -61,13 +70,13 @@ public class AuthController {
                 signupRequest.getEmail(),
                 passwordEncoder.encode(signupRequest.getPassword())
         );
+
         user.setProvider(AuthProvider.LOCAL);
         if(signupRequest.getRole() == null) {
             user.setRole(Role.ROLE_USER);
         }else {
             user.setRole(signupRequest.getRole());
         }
-
         User result = userRepository.save(user);
         return ResponseEntity.ok(new ApiResponse(true, "Register successfully. Please login : )"));
     }

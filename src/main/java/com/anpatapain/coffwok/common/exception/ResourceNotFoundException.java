@@ -1,4 +1,4 @@
-package com.anpatapain.coffwok.security.exception;
+package com.anpatapain.coffwok.common.exception;
 
 import lombok.Getter;
 import lombok.Setter;

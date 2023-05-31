@@ -1,7 +1,7 @@
 package com.anpatapain.coffwok.user;
 
 import com.anpatapain.coffwok.security.UserPrincipal;
-import com.anpatapain.coffwok.security.exception.ResourceNotFoundException;
+import com.anpatapain.coffwok.common.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -10,7 +10,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController

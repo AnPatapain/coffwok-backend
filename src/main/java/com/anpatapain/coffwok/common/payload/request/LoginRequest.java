@@ -1,9 +1,8 @@
 package com.anpatapain.coffwok.common.payload.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
-
-import javax.validation.constraints.NotBlank;
 
 @Getter @Setter
 public class LoginRequest {

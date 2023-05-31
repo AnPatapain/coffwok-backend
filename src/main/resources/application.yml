@@ -8,7 +8,7 @@ spring:
 
 app:
   cors:
-    allowedOrigins: http://localhost:3000,http://localhost:8080
+    allowedOrigins: http://localhost:3000,http://localhost:8080,http://localhost:5173
 
   auth:
     tokenSecret: Keanlk192002
