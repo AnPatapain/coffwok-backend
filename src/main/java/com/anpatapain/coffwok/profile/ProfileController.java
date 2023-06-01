@@ -9,37 +9,53 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/profiles")
 public class ProfileController {
     private Logger logger = LoggerFactory.getLogger(ProfileController.class);
 
-    @Autowired
     private ProfileRepository profileRepository;
 
-    @Autowired
     private UserRepository userRepository;
 
-    @Autowired
     private ProfileAssembler profileAssembler;
 
+    @Autowired
+    public ProfileController(ProfileRepository profileRepository, UserRepository userRepository, ProfileAssembler profileAssembler) {
+        this.profileRepository = profileRepository;
+        this.profileAssembler = profileAssembler;
+        this.userRepository = userRepository;
+    }
+
     @GetMapping("")
-    public ResponseEntity<?> all() {
-        return null;
+    public CollectionModel<EntityModel<Profile>> all() {
+        List<EntityModel<Profile>> profileEntities = profileRepository.findAll()
+                .stream()
+                .map(profileAssembler::toModel)
+                .toList();
+        return CollectionModel.of(profileEntities, linkTo(methodOn(ProfileController.class).all()).withRel("profiles"));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> one(@PathVariable String id) {
-        return null;
+    public EntityModel<Profile> one(@PathVariable String id) {
+        Profile profile = profileRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("profile", "id", id));
+        return profileAssembler.toModel(profile);
     }
 
     @PostMapping("")
@@ -80,17 +96,77 @@ public class ProfileController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> putOne(@PathVariable String id) {
-        return null;
+    public ResponseEntity<?> putOne(@PathVariable String id, @Valid @RequestBody ProfileDTO updatedProfileDTO) {
+        try{
+            Profile existingProfile = profileRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("profile", "id", id));
+
+            updateProfileProperties(existingProfile, updatedProfileDTO);
+
+            Profile updatedProfile = profileRepository.save(existingProfile);
+
+            return ResponseEntity.ok(profileAssembler.toModel(updatedProfile));
+        } catch (Exception e) {
+            // Handle any potential exceptions
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the profile.");
+        }
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<?> patchOne(@PathVariable String id) {
-        return null;
+    public ResponseEntity<?> patchOne(@PathVariable String id, @RequestBody ProfileDTO partialUpdatedProfileDTO) {
+        try{
+            Profile existingProfile = profileRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("profile", "id", id));
+
+            updateProfileProperties(existingProfile, partialUpdatedProfileDTO);
+
+            Profile updatedProfile = profileRepository.save(existingProfile);
+
+            return ResponseEntity.ok(profileAssembler.toModel(updatedProfile));
+        } catch (Exception e) {
+            // Handle any potential exceptions
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the profile.");
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteOne(@PathVariable String id) {
-        return null;
+        Profile profile = profileRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("profile", "id", id));
+        String userId = profile.getUserId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("user", "id", userId));
+        user.setProfileId(null);
+        userRepository.save(user);
+        profileRepository.deleteById(id);
+        return ResponseEntity.ok("Profile deleted successfully");
     }
+
+    private void updateProfileProperties(Profile existingProfile, ProfileDTO updatedProfileDTO) {
+        if (updatedProfileDTO.getName() != null && !updatedProfileDTO.getName().isEmpty()) {
+            existingProfile.setName(updatedProfileDTO.getName());
+        }
+        if (updatedProfileDTO.getAbout() != null && !updatedProfileDTO.getAbout().isEmpty()) {
+            existingProfile.setAbout(updatedProfileDTO.getAbout());
+        }
+        if (updatedProfileDTO.getDob_day() != null && !updatedProfileDTO.getDob_day().isEmpty()) {
+            existingProfile.setDob_day(updatedProfileDTO.getDob_day());
+        }
+        if (updatedProfileDTO.getDob_month() != null && !updatedProfileDTO.getDob_month().isEmpty()) {
+            existingProfile.setDob_month(updatedProfileDTO.getDob_month());
+        }
+        if (updatedProfileDTO.getDob_year() != null && !updatedProfileDTO.getDob_year().isEmpty()) {
+            existingProfile.setDob_year(updatedProfileDTO.getDob_year());
+        }
+        if (updatedProfileDTO.getSchool() != null && !updatedProfileDTO.getSchool().isEmpty()) {
+            existingProfile.setSchool(updatedProfileDTO.getSchool());
+        }
+        if (updatedProfileDTO.getStrength_subjects() != null && updatedProfileDTO.getStrength_subjects().length > 0) {
+            existingProfile.setStrength_subjects(updatedProfileDTO.getStrength_subjects());
+        }
+        if (updatedProfileDTO.getWeak_subjects() != null && updatedProfileDTO.getWeak_subjects().length > 0) {
+            existingProfile.setWeak_subjects(updatedProfileDTO.getWeak_subjects());
+        }
+    }
+
 }

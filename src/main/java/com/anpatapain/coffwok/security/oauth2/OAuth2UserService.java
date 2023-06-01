@@ -5,6 +5,7 @@ import com.anpatapain.coffwok.security.oauth2.oauth2UserInfo.OAuth2UserInfo;
 import com.anpatapain.coffwok.security.oauth2.oauth2UserInfo.OAuth2UserInfoFactory;
 import com.anpatapain.coffwok.user.UserRepository;
 import com.anpatapain.coffwok.user.model.AuthProvider;
+import com.anpatapain.coffwok.user.model.Role;
 import com.anpatapain.coffwok.user.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,14 +70,15 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         user.setProvider(AuthProvider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId()));
         user.setProviderId(oAuth2UserInfo.getId());
         user.setEmail(oAuth2UserInfo.getEmail());
-        logger.info("oauth user image" + oAuth2UserInfo.getImageUrl());
+        user.setRole(Role.ROLE_USER);
+        logger.info("register triggered: " + oAuth2UserInfo.getImageUrl());
 
         return userRepository.save(user);
     }
 
     private User updateExistingUser(User existingUser, OAuth2UserInfo oAuth2UserInfo) {
         //UPDATE LOGIC HERE
-        logger.info("oauth user image" + oAuth2UserInfo.getImageUrl());
+        logger.info("update triggered: " + oAuth2UserInfo.getImageUrl());
         return userRepository.save(existingUser);
     }
 
