@@ -33,13 +33,17 @@ public class ProfileController {
 
     private UserRepository userRepository;
 
+    private ProfileService profileService;
+
     private ProfileAssembler profileAssembler;
 
     @Autowired
-    public ProfileController(ProfileRepository profileRepository, UserRepository userRepository, ProfileAssembler profileAssembler) {
+    public ProfileController(ProfileRepository profileRepository, UserRepository userRepository,
+                             ProfileAssembler profileAssembler, ProfileService profileService) {
         this.profileRepository = profileRepository;
         this.profileAssembler = profileAssembler;
         this.userRepository = userRepository;
+        this.profileService = profileService;
     }
 
     @GetMapping("")
@@ -71,22 +75,7 @@ public class ProfileController {
         }
 
         if(user.getProfileId() == null) {
-            Profile profile = new Profile(
-                    profileDTO.getName(),
-                    profileDTO.getAbout(),
-                    profileDTO.getDob_day(),
-                    profileDTO.getDob_month(),
-                    profileDTO.getDob_year(),
-                    profileDTO.getSchool(),
-                    profileDTO.getStrength_subjects(),
-                    profileDTO.getWeak_subjects()
-            );
-
-            profile.setUserId(user.getId());
-            profile = profileRepository.save(profile);
-
-            user.setProfileId(profile.getId());
-            user = userRepository.save(user);
+            Profile profile = profileService.createProfile(user, profileDTO);
 
             EntityModel<Profile> profileEntityModel = profileAssembler.toModel(profile);
             return ResponseEntity.ok(profileEntityModel);
@@ -98,53 +87,21 @@ public class ProfileController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> putOne(@PathVariable String id, @Valid @RequestBody ProfileDTO updatedProfileDTO) {
-        try{
-            Profile existingProfile = profileRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("profile", "id", id));
-
-            updateProfileProperties(existingProfile, updatedProfileDTO);
-
-            Profile updatedProfile = profileRepository.save(existingProfile);
-
-            return ResponseEntity.ok(profileAssembler.toModel(updatedProfile));
-        } catch (Exception e) {
-            // Handle any potential exceptions
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the profile.");
-        }
+        Profile updatedProfile = profileService.putProfile(id, updatedProfileDTO);
+        return ResponseEntity.ok(profileAssembler.toModel(updatedProfile));
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> patchOne(@PathVariable String id, @RequestBody ProfileDTO partialUpdatedProfileDTO) {
-        try{
-            Profile existingProfile = profileRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("profile", "id", id));
-
-            updateProfileProperties(existingProfile, partialUpdatedProfileDTO);
-
-            Profile updatedProfile = profileRepository.save(existingProfile);
-
-            return ResponseEntity.ok(profileAssembler.toModel(updatedProfile));
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-        catch (Exception e) {
-            // Handle any potential exceptions
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the profile.");
-        }
+        Profile updatedProfile = profileService.patchProfile(id, partialUpdatedProfileDTO);
+        return ResponseEntity.ok(profileAssembler.toModel(updatedProfile));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> deleteOne(@PathVariable String id) {
-        Profile profile = profileRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("profile", "id", id));
-        String userId = profile.getUserId();
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("user", "id", userId));
-        user.setProfileId(null);
-        userRepository.save(user);
-        profileRepository.deleteById(id);
+        profileService.deleteProfile(id);
         return ResponseEntity.ok("Profile deleted successfully");
     }
 
@@ -158,32 +115,6 @@ public class ProfileController {
             return user;
         }
         return null;
-    }
-    private void updateProfileProperties(Profile existingProfile, ProfileDTO updatedProfileDTO) {
-        if (updatedProfileDTO.getName() != null && !updatedProfileDTO.getName().isEmpty()) {
-            existingProfile.setName(updatedProfileDTO.getName());
-        }
-        if (updatedProfileDTO.getAbout() != null && !updatedProfileDTO.getAbout().isEmpty()) {
-            existingProfile.setAbout(updatedProfileDTO.getAbout());
-        }
-        if (updatedProfileDTO.getDob_day() != null && !updatedProfileDTO.getDob_day().isEmpty()) {
-            existingProfile.setDob_day(updatedProfileDTO.getDob_day());
-        }
-        if (updatedProfileDTO.getDob_month() != null && !updatedProfileDTO.getDob_month().isEmpty()) {
-            existingProfile.setDob_month(updatedProfileDTO.getDob_month());
-        }
-        if (updatedProfileDTO.getDob_year() != null && !updatedProfileDTO.getDob_year().isEmpty()) {
-            existingProfile.setDob_year(updatedProfileDTO.getDob_year());
-        }
-        if (updatedProfileDTO.getSchool() != null && !updatedProfileDTO.getSchool().isEmpty()) {
-            existingProfile.setSchool(updatedProfileDTO.getSchool());
-        }
-        if (updatedProfileDTO.getStrength_subjects() != null && updatedProfileDTO.getStrength_subjects().length > 0) {
-            existingProfile.setStrength_subjects(updatedProfileDTO.getStrength_subjects());
-        }
-        if (updatedProfileDTO.getWeak_subjects() != null && updatedProfileDTO.getWeak_subjects().length > 0) {
-            existingProfile.setWeak_subjects(updatedProfileDTO.getWeak_subjects());
-        }
     }
 
 }

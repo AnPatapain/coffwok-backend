@@ -6,6 +6,11 @@ spring:
       database: coffwok_dev
       authentication-database: admin
 
+  servlet:
+    multipart:
+      max-file-size: 500KB
+      max-request-size: 500KB
+
   security:
     oauth2:
       client:
