@@ -43,6 +43,7 @@ public class ProfileController {
     }
 
     @GetMapping("")
+    @PreAuthorize("hasRole('USER')")
     public CollectionModel<EntityModel<Profile>> all() {
         List<EntityModel<Profile>> profileEntities = profileRepository.findAll()
                 .stream()
@@ -52,50 +53,50 @@ public class ProfileController {
     }
 
     @GetMapping("/{id}")
-    public EntityModel<Profile> one(@PathVariable String id) {
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> one(@PathVariable String id) {
         Profile profile = profileRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("profile", "id", id));
-        return profileAssembler.toModel(profile);
+        return ResponseEntity.ok(profileAssembler.toModel(profile));
     }
 
     @PostMapping("")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> createOne(@Valid @RequestBody ProfileDTO profileDTO) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(!(authentication instanceof AnonymousAuthenticationToken)) {
-            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-
-            User user = userRepository.findById(userPrincipal.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("user", "id", userPrincipal.getId()));
-
-            if(user.getProfileId() == null) {
-                Profile profile = new Profile(
-                        profileDTO.getName(),
-                        profileDTO.getAbout(),
-                        profileDTO.getDob_day(),
-                        profileDTO.getDob_month(),
-                        profileDTO.getDob_year(),
-                        profileDTO.getSchool(),
-                        profileDTO.getStrength_subjects(),
-                        profileDTO.getWeak_subjects()
-                );
-
-                profile.setUserId(user.getId());
-                profile = profileRepository.save(profile);
-
-                user.setProfileId(profile.getId());
-                user = userRepository.save(user);
-
-                EntityModel<Profile> profileEntityModel = profileAssembler.toModel(profile);
-                return ResponseEntity.ok(profileEntityModel);
-            }else {
-                return ResponseEntity.badRequest().body(new ApiResponse(false, "User has already profile"));
-            }
+        User user;
+        try{
+            user = getCurrentAuthenticatedUser();
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage() + "user not found");
         }
-        return ResponseEntity.internalServerError().body("authentication instanceof AnonymousAuthenticationToken");
+
+        if(user.getProfileId() == null) {
+            Profile profile = new Profile(
+                    profileDTO.getName(),
+                    profileDTO.getAbout(),
+                    profileDTO.getDob_day(),
+                    profileDTO.getDob_month(),
+                    profileDTO.getDob_year(),
+                    profileDTO.getSchool(),
+                    profileDTO.getStrength_subjects(),
+                    profileDTO.getWeak_subjects()
+            );
+
+            profile.setUserId(user.getId());
+            profile = profileRepository.save(profile);
+
+            user.setProfileId(profile.getId());
+            user = userRepository.save(user);
+
+            EntityModel<Profile> profileEntityModel = profileAssembler.toModel(profile);
+            return ResponseEntity.ok(profileEntityModel);
+        }else {
+            return ResponseEntity.badRequest().body(new ApiResponse(false, "User has already profile"));
+        }
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> putOne(@PathVariable String id, @Valid @RequestBody ProfileDTO updatedProfileDTO) {
         try{
             Profile existingProfile = profileRepository.findById(id)
@@ -113,6 +114,7 @@ public class ProfileController {
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> patchOne(@PathVariable String id, @RequestBody ProfileDTO partialUpdatedProfileDTO) {
         try{
             Profile existingProfile = profileRepository.findById(id)
@@ -123,13 +125,17 @@ public class ProfileController {
             Profile updatedProfile = profileRepository.save(existingProfile);
 
             return ResponseEntity.ok(profileAssembler.toModel(updatedProfile));
-        } catch (Exception e) {
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+        catch (Exception e) {
             // Handle any potential exceptions
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the profile.");
         }
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> deleteOne(@PathVariable String id) {
         Profile profile = profileRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("profile", "id", id));
@@ -142,6 +148,17 @@ public class ProfileController {
         return ResponseEntity.ok("Profile deleted successfully");
     }
 
+    private User getCurrentAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(!(authentication instanceof AnonymousAuthenticationToken)) {
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+
+            User user = userRepository.findById(userPrincipal.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("user", "id", userPrincipal.getId()));
+            return user;
+        }
+        return null;
+    }
     private void updateProfileProperties(Profile existingProfile, ProfileDTO updatedProfileDTO) {
         if (updatedProfileDTO.getName() != null && !updatedProfileDTO.getName().isEmpty()) {
             existingProfile.setName(updatedProfileDTO.getName());
