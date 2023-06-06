@@ -6,24 +6,42 @@ import com.anpatapain.coffwok.user.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class ProfileService {
     private ProfileRepository profileRepository;
     private UserRepository userRepository;
 
+    private ProfileAssembler profileAssembler;
+
     private Logger logger = LoggerFactory.getLogger(ProfileService.class);
 
     @Autowired
-    public ProfileService(ProfileRepository profileRepository, UserRepository userRepository) {
+    public ProfileService(ProfileRepository profileRepository, UserRepository userRepository, ProfileAssembler profileAssembler) {
         this.profileRepository = profileRepository;
         this.userRepository = userRepository;
+        this.profileAssembler = profileAssembler;
     }
 
-    public Profile createProfile(User user, ProfileDTO profileDTO) {
+    public List<EntityModel<Profile>> getAll() {
+        List<EntityModel<Profile>> profileEntities = profileRepository.findAll()
+                .stream()
+                .map(profileAssembler::toModel)
+                .toList();
+        return profileEntities;
+    }
+
+    public EntityModel<Profile> getOne(String id) {
+        Profile profile = profileRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("profile", "id", id));
+        return profileAssembler.toModel(profile);
+    }
+
+    public EntityModel<Profile> createProfile(User user, ProfileDTO profileDTO) {
         Profile profile = new Profile(
                 profileDTO.getName(),
                 profileDTO.getAbout(),
@@ -39,8 +57,8 @@ public class ProfileService {
         profile = profileRepository.save(profile);
 
         user.setProfileId(profile.getId());
-        user = userRepository.save(user);
-        return profile;
+        userRepository.save(user);
+        return profileAssembler.toModel(profile);
     }
 
     public void deleteProfile(String id) {
@@ -54,7 +72,7 @@ public class ProfileService {
         profileRepository.deleteById(id);
     }
 
-    public Profile patchProfile(String id, ProfileDTO partialUpdatedProfileDTO) {
+    public EntityModel<Profile> patchProfile(String id, ProfileDTO partialUpdatedProfileDTO) {
         try{
             Profile existingProfile = profileRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("profile", "id", id));
@@ -63,7 +81,7 @@ public class ProfileService {
 
             Profile updatedProfile = profileRepository.save(existingProfile);
 
-            return updatedProfile;
+            return profileAssembler.toModel(updatedProfile);
         } catch (ResourceNotFoundException e) {
             throw e;
         } catch (Exception e) {
@@ -73,7 +91,7 @@ public class ProfileService {
         }
     }
 
-    public Profile putProfile(String id, ProfileDTO updatedProfileDTO) {
+    public EntityModel<Profile> putProfile(String id, ProfileDTO updatedProfileDTO) {
         try{
             Profile existingProfile = profileRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("profile", "id", id));
@@ -82,7 +100,7 @@ public class ProfileService {
 
             Profile updatedProfile = profileRepository.save(existingProfile);
 
-            return updatedProfile;
+            return profileAssembler.toModel(updatedProfile);
         } catch (Exception e) {
             // Handle any potential exceptions
             logger.error("An error occurred while updating the profile (put)");
