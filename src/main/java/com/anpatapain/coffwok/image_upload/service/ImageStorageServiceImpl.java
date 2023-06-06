@@ -1,5 +1,6 @@
 package com.anpatapain.coffwok.image_upload.service;
 
+import com.anpatapain.coffwok.image_upload.exception.ImageUploadException;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +55,7 @@ public class ImageStorageServiceImpl implements ImageStorageService {
             Map<?, ?> uploadResult = cloudinaryConfig.uploader().upload(file.getBytes(), params);
             return (String) uploadResult.get("secure_url");
         }catch (Exception e) {
-            throw new RuntimeException("Can not upload to cloudinary");
+            throw new ImageUploadException();
         }
     }
 

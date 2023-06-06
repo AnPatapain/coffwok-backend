@@ -1,14 +1,18 @@
 package com.anpatapain.coffwok.profile.controller;
 
+import com.anpatapain.coffwok.common.payload.response.ApiResponse;
+import com.anpatapain.coffwok.image_upload.exception.ImageUploadException;
 import com.anpatapain.coffwok.image_upload.service.ImageStorageService;
 import com.anpatapain.coffwok.profile.model.Profile;
 import com.anpatapain.coffwok.profile.dto.ProfileDTO;
 import com.anpatapain.coffwok.profile.service.ProfileService;
+import com.anpatapain.coffwok.profile.service.ProfileServiceImpl;
 import com.anpatapain.coffwok.security.UserPrincipal;
 import com.anpatapain.coffwok.common.exception.ResourceNotFoundException;
 import com.anpatapain.coffwok.user.repository.UserRepository;
 import com.anpatapain.coffwok.user.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,29 +72,39 @@ public class ProfileController {
             MediaType.MULTIPART_FORM_DATA_VALUE
     })
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> createOne(@RequestPart("profile") String profileDTO, @RequestPart("file") MultipartFile file) {
-        Profile profileJson = new Profile();
+    public ResponseEntity<?> createOne(@RequestPart("profile") String profileDTO,
+                                       @RequestPart("file") MultipartFile imageFile) {
+        User user;
+        try{
+            user = getCurrentAuthenticatedUser();
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage() + "user not found");
+        }
+
+        if(user.getProfileId() != null) {
+            return ResponseEntity.badRequest().body(new ApiResponse(false, "User has already profile"));
+        }
+
+        ProfileDTO profileDtoJson = new ProfileDTO();
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            profileJson = objectMapper.readValue(profileDTO, Profile.class);
+            profileDtoJson = objectMapper.readValue(profileDTO, ProfileDTO.class);
         }catch (IOException e) {
             logger.error(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
 
-        logger.info(profileJson.getName());
-        logger.info(profileJson.getAbout());
-        for(String strength : profileJson.getStrength_subjects()) {
-            logger.info(strength);
-        }
-
+        EntityModel<Profile> profileEntityModel;
         try {
-            String url = storageService.saveToCloudinary(file);
-            logger.info("cloudinary url: " + url);
-        }catch (Exception e) {
-            String message = "Could not upload " + file.getOriginalFilename();
-            logger.error(message);
+            profileEntityModel = profileService.createProfileWithImage(user, profileDtoJson, imageFile);
+        }catch (ConstraintViolationException e) {
+            logger.error(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }catch (ImageUploadException e) {
+            logger.error(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-        return ResponseEntity.ok("Create Profile successfully");
+        return ResponseEntity.ok(profileEntityModel);
     }
 //    public ResponseEntity<?> createOne(@Valid @RequestBody ProfileDTO profileDTO) {
 //        User user;

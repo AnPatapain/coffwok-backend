@@ -22,7 +22,12 @@ public class Profile {
     @Size(max = 50)
     private String name;
 
+    @NotBlank
+    @Size(max = 200)
     private String about;
+
+    @NotBlank
+    private String imgUrl;
 
     @NotBlank
     private String dob_day;

@@ -2,17 +2,17 @@ package com.anpatapain.coffwok.profile.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-@Getter @Setter
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 @Data
 public class ProfileDTO {
     @NotBlank
     @Size(max = 50, message = "name must not be too long maximum 50 chars")
     private String name;
 
+    @NotBlank
+    @Size(max = 200)
     private String about;
 
     @NotBlank
