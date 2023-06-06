@@ -1,7 +1,8 @@
-package com.anpatapain.coffwok.user;
+package com.anpatapain.coffwok.user.controller;
 
 import com.anpatapain.coffwok.security.UserPrincipal;
 import com.anpatapain.coffwok.common.exception.ResourceNotFoundException;
+import com.anpatapain.coffwok.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

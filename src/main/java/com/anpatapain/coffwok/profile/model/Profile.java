@@ -1,4 +1,4 @@
-package com.anpatapain.coffwok.profile;
+package com.anpatapain.coffwok.profile.model;
 
 import com.anpatapain.coffwok.user.model.User;
 import jakarta.validation.constraints.NotBlank;

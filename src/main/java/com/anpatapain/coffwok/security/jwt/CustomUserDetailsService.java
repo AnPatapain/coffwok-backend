@@ -2,7 +2,7 @@ package com.anpatapain.coffwok.security.jwt;
 
 import com.anpatapain.coffwok.security.UserPrincipal;
 import com.anpatapain.coffwok.common.exception.ResourceNotFoundException;
-import com.anpatapain.coffwok.user.UserRepository;
+import com.anpatapain.coffwok.user.repository.UserRepository;
 import com.anpatapain.coffwok.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -1,4 +1,4 @@
-package com.anpatapain.coffwok.file_upload;
+package com.anpatapain.coffwok.image_upload.config;
 
 import com.cloudinary.Cloudinary;
 import org.springframework.context.annotation.Bean;

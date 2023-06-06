@@ -1,7 +1,7 @@
-package com.anpatapain.coffwok.file_upload.controller;
+package com.anpatapain.coffwok.image_upload.controller;
 
 import com.anpatapain.coffwok.common.payload.response.ApiResponse;
-import com.anpatapain.coffwok.file_upload.service.FileStorageService;
+import com.anpatapain.coffwok.image_upload.service.ImageStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 @Controller
-public class FileController {
-    private FileStorageService storageService;
-    private Logger logger = LoggerFactory.getLogger(FileController.class);
+public class ImageController {
+    private ImageStorageService storageService;
+    private Logger logger = LoggerFactory.getLogger(ImageController.class);
     @Autowired
-    public FileController(FileStorageService storageService) {
+    public ImageController(ImageStorageService storageService) {
         this.storageService = storageService;
     }
 

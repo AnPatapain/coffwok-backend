@@ -1,5 +1,6 @@
-package com.anpatapain.coffwok.profile;
+package com.anpatapain.coffwok.profile.model;
 
+import com.anpatapain.coffwok.profile.controller.ProfileController;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;

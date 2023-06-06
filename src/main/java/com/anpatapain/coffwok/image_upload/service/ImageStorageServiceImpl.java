@@ -1,9 +1,8 @@
-package com.anpatapain.coffwok.file_upload.service;
+package com.anpatapain.coffwok.image_upload.service;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -14,12 +13,11 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
 @Service
-public class FileStorageServiceImpl implements FileStorageService{
+public class ImageStorageServiceImpl implements ImageStorageService {
     private final Path root = Paths.get("uploads");
 
 

@@ -1,21 +1,30 @@
-package com.anpatapain.coffwok.profile;
+package com.anpatapain.coffwok.profile.controller;
 
-import com.anpatapain.coffwok.common.payload.response.ApiResponse;
+import com.anpatapain.coffwok.image_upload.service.ImageStorageService;
+import com.anpatapain.coffwok.profile.model.Profile;
+import com.anpatapain.coffwok.profile.dto.ProfileDTO;
+import com.anpatapain.coffwok.profile.service.ProfileService;
 import com.anpatapain.coffwok.security.UserPrincipal;
 import com.anpatapain.coffwok.common.exception.ResourceNotFoundException;
-import com.anpatapain.coffwok.user.UserRepository;
+import com.anpatapain.coffwok.user.repository.UserRepository;
 import com.anpatapain.coffwok.user.model.User;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -28,11 +37,16 @@ public class ProfileController {
 
     private ProfileService profileService;
 
+    private ImageStorageService storageService;
+
+    private Logger logger = LoggerFactory.getLogger(ProfileController.class);
+
 
     @Autowired
-    public ProfileController(UserRepository userRepository, ProfileService profileService) {
+    public ProfileController(UserRepository userRepository, ProfileService profileService, ImageStorageService storageService) {
         this.userRepository = userRepository;
         this.profileService = profileService;
+        this.storageService = storageService;
     }
 
     @GetMapping("")
@@ -49,23 +63,50 @@ public class ProfileController {
         return ResponseEntity.ok(profileEntity);
     }
 
-    @PostMapping("")
+    @PostMapping(value = "", consumes = {
+            MediaType.APPLICATION_JSON_VALUE,
+            MediaType.MULTIPART_FORM_DATA_VALUE
+    })
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> createOne(@Valid @RequestBody ProfileDTO profileDTO) {
-        User user;
-        try{
-            user = getCurrentAuthenticatedUser();
-        }catch (ResourceNotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage() + "user not found");
+    public ResponseEntity<?> createOne(@RequestPart("profile") String profileDTO, @RequestPart("file") MultipartFile file) {
+        Profile profileJson = new Profile();
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            profileJson = objectMapper.readValue(profileDTO, Profile.class);
+        }catch (IOException e) {
+            logger.error(e.getMessage());
         }
 
-        if(user.getProfileId() == null) {
-            EntityModel<Profile> profileEntityModel = profileService.createProfile(user, profileDTO);
-            return ResponseEntity.ok(profileEntityModel);
-        }else {
-            return ResponseEntity.badRequest().body(new ApiResponse(false, "User has already profile"));
+        logger.info(profileJson.getName());
+        logger.info(profileJson.getAbout());
+        for(String strength : profileJson.getStrength_subjects()) {
+            logger.info(strength);
         }
+
+        try {
+            String url = storageService.saveToCloudinary(file);
+            logger.info("cloudinary url: " + url);
+        }catch (Exception e) {
+            String message = "Could not upload " + file.getOriginalFilename();
+            logger.error(message);
+        }
+        return ResponseEntity.ok("Create Profile successfully");
     }
+//    public ResponseEntity<?> createOne(@Valid @RequestBody ProfileDTO profileDTO) {
+//        User user;
+//        try{
+//            user = getCurrentAuthenticatedUser();
+//        }catch (ResourceNotFoundException e) {
+//            return ResponseEntity.badRequest().body(e.getMessage() + "user not found");
+//        }
+//
+//        if(user.getProfileId() == null) {
+//            EntityModel<Profile> profileEntityModel = profileService.createProfile(user, profileDTO);
+//            return ResponseEntity.ok(profileEntityModel);
+//        }else {
+//            return ResponseEntity.badRequest().body(new ApiResponse(false, "User has already profile"));
+//        }
+//    }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('USER')")

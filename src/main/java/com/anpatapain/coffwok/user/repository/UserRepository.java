@@ -1,4 +1,4 @@
-package com.anpatapain.coffwok.user;
+package com.anpatapain.coffwok.user.repository;
 
 import com.anpatapain.coffwok.user.model.User;
 import org.springframework.data.mongodb.repository.MongoRepository;

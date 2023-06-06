@@ -1,4 +1,4 @@
-package com.anpatapain.coffwok.profile;
+package com.anpatapain.coffwok.profile.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

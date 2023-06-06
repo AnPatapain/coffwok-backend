@@ -1,5 +1,6 @@
-package com.anpatapain.coffwok.profile;
+package com.anpatapain.coffwok.profile.repository;
 
+import com.anpatapain.coffwok.profile.model.Profile;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.Optional;

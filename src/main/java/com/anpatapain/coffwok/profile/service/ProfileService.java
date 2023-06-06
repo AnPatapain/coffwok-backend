@@ -1,7 +1,11 @@
-package com.anpatapain.coffwok.profile;
+package com.anpatapain.coffwok.profile.service;
 
 import com.anpatapain.coffwok.common.exception.ResourceNotFoundException;
-import com.anpatapain.coffwok.user.UserRepository;
+import com.anpatapain.coffwok.profile.dto.ProfileDTO;
+import com.anpatapain.coffwok.profile.model.Profile;
+import com.anpatapain.coffwok.profile.model.ProfileAssembler;
+import com.anpatapain.coffwok.profile.repository.ProfileRepository;
+import com.anpatapain.coffwok.user.repository.UserRepository;
 import com.anpatapain.coffwok.user.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

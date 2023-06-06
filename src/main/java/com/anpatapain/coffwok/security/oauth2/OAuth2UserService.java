@@ -3,7 +3,7 @@ package com.anpatapain.coffwok.security.oauth2;
 import com.anpatapain.coffwok.security.UserPrincipal;
 import com.anpatapain.coffwok.security.oauth2.oauth2UserInfo.OAuth2UserInfo;
 import com.anpatapain.coffwok.security.oauth2.oauth2UserInfo.OAuth2UserInfoFactory;
-import com.anpatapain.coffwok.user.UserRepository;
+import com.anpatapain.coffwok.user.repository.UserRepository;
 import com.anpatapain.coffwok.user.model.AuthProvider;
 import com.anpatapain.coffwok.user.model.Role;
 import com.anpatapain.coffwok.user.model.User;

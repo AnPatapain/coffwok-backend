@@ -5,7 +5,7 @@ import com.anpatapain.coffwok.common.payload.request.SignupRequest;
 import com.anpatapain.coffwok.common.payload.response.ApiResponse;
 import com.anpatapain.coffwok.common.payload.response.AuthResponse;
 import com.anpatapain.coffwok.security.utils.JwtUtils;
-import com.anpatapain.coffwok.user.UserRepository;
+import com.anpatapain.coffwok.user.repository.UserRepository;
 import com.anpatapain.coffwok.user.model.AuthProvider;
 import com.anpatapain.coffwok.user.model.Role;
 import com.anpatapain.coffwok.user.model.User;

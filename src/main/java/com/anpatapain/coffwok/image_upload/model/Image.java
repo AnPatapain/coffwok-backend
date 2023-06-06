@@ -1,10 +1,10 @@
-package com.anpatapain.coffwok.file_upload.model;
+package com.anpatapain.coffwok.image_upload.model;
 
-public class FileInfo {
+public class Image {
     private String name;
     private String url;
 
-    public FileInfo(String name, String url) {
+    public Image(String name, String url) {
         this.name = name;
         this.url = url;
     }
