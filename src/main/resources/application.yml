@@ -1,10 +1,13 @@
 spring:
   data:
     mongodb:
-      host: localhost
-      port: 27017
+      uri: mongodb+srv://Cluster46068:Keanlk192002@cluster46068.xxm5ube.mongodb.net/?retryWrites=true&w=majority
       database: coffwok_dev
-      authentication-database: admin
+#    mongodb:
+#      host: localhost
+#      port: 27017
+#      database: coffwok_dev
+#      authentication-database: admin
 
   servlet:
     multipart:

@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -84,14 +85,24 @@ public class ProfileInfoController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> putOne(@PathVariable String id, @Valid @RequestBody ProfileInfoDTO updatedProfileInfoDTO) {
-        EntityModel<Profile> updatedProfileEntity = profileService.putProfile(id, updatedProfileInfoDTO);
+        EntityModel<Profile> updatedProfileEntity;
+        try {
+            updatedProfileEntity = profileService.putProfile(id, updatedProfileInfoDTO);
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
+        }
         return ResponseEntity.ok(updatedProfileEntity);
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> patchOne(@PathVariable String id, @RequestBody ProfileInfoDTO partialUpdatedProfileInfoDTO) {
-        EntityModel<Profile> updatedProfileEntity = profileService.patchProfile(id, partialUpdatedProfileInfoDTO);
+        EntityModel<Profile> updatedProfileEntity;
+        try {
+            updatedProfileEntity = profileService.patchProfile(id, partialUpdatedProfileInfoDTO);
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
+        }
         return ResponseEntity.ok(updatedProfileEntity);
     }
 

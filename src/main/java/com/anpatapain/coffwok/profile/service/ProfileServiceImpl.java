@@ -116,40 +116,28 @@ public class ProfileServiceImpl implements ProfileService{
 
     @Override
     public EntityModel<Profile> patchProfile(String id, ProfileInfoDTO partialUpdatedProfileInfoDTO) {
-        try{
-            Profile existingProfile = profileRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("profile", "id", id));
 
-            updateProfileProperties(existingProfile, partialUpdatedProfileInfoDTO);
+        Profile existingProfile = profileRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("profile", "id", id));
 
-            Profile updatedProfile = profileRepository.save(existingProfile);
+        updateProfileProperties(existingProfile, partialUpdatedProfileInfoDTO);
 
-            return profileAssembler.toModel(updatedProfile);
-        } catch (ResourceNotFoundException e) {
-            throw e;
-        } catch (Exception e) {
-            // Handle any potential exceptions
-            logger.error("An error occurred while updating the profile (patch)");
-            throw e;
-        }
+        Profile updatedProfile = profileRepository.save(existingProfile);
+
+        return profileAssembler.toModel(updatedProfile);
     }
 
     @Override
     public EntityModel<Profile> putProfile(String id, ProfileInfoDTO updatedProfileInfoDTO) {
-        try{
-            Profile existingProfile = profileRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("profile", "id", id));
+        Profile existingProfile = profileRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("profile", "id", id));
 
-            updateProfileProperties(existingProfile, updatedProfileInfoDTO);
+        updateProfileProperties(existingProfile, updatedProfileInfoDTO);
 
-            Profile updatedProfile = profileRepository.save(existingProfile);
+        Profile updatedProfile = profileRepository.save(existingProfile);
 
-            return profileAssembler.toModel(updatedProfile);
-        } catch (Exception e) {
-            // Handle any potential exceptions
-            logger.error("An error occurred while updating the profile (put)");
-            throw e;
-        }
+        return profileAssembler.toModel(updatedProfile);
+
     }
 
 
