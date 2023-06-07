@@ -3,16 +3,12 @@ package com.anpatapain.coffwok.profile.service;
 import com.anpatapain.coffwok.common.exception.ResourceNotFoundException;
 import com.anpatapain.coffwok.image_upload.exception.ImageUploadException;
 import com.anpatapain.coffwok.image_upload.service.ImageStorageService;
-import com.anpatapain.coffwok.profile.dto.ProfileDTO;
+import com.anpatapain.coffwok.profile.dto.ProfileInfoDTO;
 import com.anpatapain.coffwok.profile.model.Profile;
 import com.anpatapain.coffwok.profile.model.ProfileAssembler;
 import com.anpatapain.coffwok.profile.repository.ProfileRepository;
 import com.anpatapain.coffwok.user.repository.UserRepository;
 import com.anpatapain.coffwok.user.model.User;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Valid;
 import jakarta.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,9 +17,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class ProfileServiceImpl implements ProfileService{
@@ -68,16 +62,16 @@ public class ProfileServiceImpl implements ProfileService{
     }
 
     @Override
-    public EntityModel<Profile> createProfile(User user, ProfileDTO profileDTO) {
+    public EntityModel<Profile> createProfile(User user, ProfileInfoDTO profileInfoDTO) {
         Profile profile = new Profile(
-                profileDTO.getName(),
-                profileDTO.getAbout(),
-                profileDTO.getDob_day(),
-                profileDTO.getDob_month(),
-                profileDTO.getDob_year(),
-                profileDTO.getSchool(),
-                profileDTO.getStrength_subjects(),
-                profileDTO.getWeak_subjects()
+                profileInfoDTO.getName(),
+                profileInfoDTO.getAbout(),
+                profileInfoDTO.getDob_day(),
+                profileInfoDTO.getDob_month(),
+                profileInfoDTO.getDob_year(),
+                profileInfoDTO.getSchool(),
+                profileInfoDTO.getStrength_subjects(),
+                profileInfoDTO.getWeak_subjects()
         );
 
         profile.setUserId(user.getId());
@@ -87,13 +81,10 @@ public class ProfileServiceImpl implements ProfileService{
         userRepository.save(user);
         return profileAssembler.toModel(profile);
     }
-
     @Override
-    public EntityModel<Profile> createProfileWithImage(User user, ProfileDTO profileDTO, MultipartFile imageFile) {
-        Set<ConstraintViolation<ProfileDTO>> violations = validator.validate(profileDTO);
-        if(!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
+    public EntityModel<Profile> uploadImage(String profileId, MultipartFile imageFile) {
+        Profile profile = profileRepository.findById(profileId)
+                .orElseThrow(() -> new ResourceNotFoundException("profile", "id", profileId));
 
         String imageUrl = "";
         try {
@@ -105,21 +96,9 @@ public class ProfileServiceImpl implements ProfileService{
             throw e;
         }
 
-        Profile profile = new Profile(
-                profileDTO.getName(),
-                profileDTO.getAbout(),
-                profileDTO.getDob_day(),
-                profileDTO.getDob_month(),
-                profileDTO.getDob_year(),
-                profileDTO.getSchool(),
-                profileDTO.getStrength_subjects(),
-                profileDTO.getWeak_subjects()
-        );
         profile.setImgUrl(imageUrl);
-        profile.setUserId(user.getId());
         profile = profileRepository.save(profile);
-        user.setProfileId(profile.getId());
-        userRepository.save(user);
+
         return profileAssembler.toModel(profile);
     }
 
@@ -136,12 +115,12 @@ public class ProfileServiceImpl implements ProfileService{
     }
 
     @Override
-    public EntityModel<Profile> patchProfile(String id, ProfileDTO partialUpdatedProfileDTO) {
+    public EntityModel<Profile> patchProfile(String id, ProfileInfoDTO partialUpdatedProfileInfoDTO) {
         try{
             Profile existingProfile = profileRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("profile", "id", id));
 
-            updateProfileProperties(existingProfile, partialUpdatedProfileDTO);
+            updateProfileProperties(existingProfile, partialUpdatedProfileInfoDTO);
 
             Profile updatedProfile = profileRepository.save(existingProfile);
 
@@ -156,12 +135,12 @@ public class ProfileServiceImpl implements ProfileService{
     }
 
     @Override
-    public EntityModel<Profile> putProfile(String id, ProfileDTO updatedProfileDTO) {
+    public EntityModel<Profile> putProfile(String id, ProfileInfoDTO updatedProfileInfoDTO) {
         try{
             Profile existingProfile = profileRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("profile", "id", id));
 
-            updateProfileProperties(existingProfile, updatedProfileDTO);
+            updateProfileProperties(existingProfile, updatedProfileInfoDTO);
 
             Profile updatedProfile = profileRepository.save(existingProfile);
 
@@ -173,30 +152,31 @@ public class ProfileServiceImpl implements ProfileService{
         }
     }
 
-    private void updateProfileProperties(Profile existingProfile, ProfileDTO updatedProfileDTO) {
-        if (updatedProfileDTO.getName() != null && !updatedProfileDTO.getName().isEmpty()) {
-            existingProfile.setName(updatedProfileDTO.getName());
+
+    private void updateProfileProperties(Profile existingProfile, ProfileInfoDTO updatedProfileInfoDTO) {
+        if (updatedProfileInfoDTO.getName() != null && !updatedProfileInfoDTO.getName().isEmpty()) {
+            existingProfile.setName(updatedProfileInfoDTO.getName());
         }
-        if (updatedProfileDTO.getAbout() != null && !updatedProfileDTO.getAbout().isEmpty()) {
-            existingProfile.setAbout(updatedProfileDTO.getAbout());
+        if (updatedProfileInfoDTO.getAbout() != null && !updatedProfileInfoDTO.getAbout().isEmpty()) {
+            existingProfile.setAbout(updatedProfileInfoDTO.getAbout());
         }
-        if (updatedProfileDTO.getDob_day() != null && !updatedProfileDTO.getDob_day().isEmpty()) {
-            existingProfile.setDob_day(updatedProfileDTO.getDob_day());
+        if (updatedProfileInfoDTO.getDob_day() != null && !updatedProfileInfoDTO.getDob_day().isEmpty()) {
+            existingProfile.setDob_day(updatedProfileInfoDTO.getDob_day());
         }
-        if (updatedProfileDTO.getDob_month() != null && !updatedProfileDTO.getDob_month().isEmpty()) {
-            existingProfile.setDob_month(updatedProfileDTO.getDob_month());
+        if (updatedProfileInfoDTO.getDob_month() != null && !updatedProfileInfoDTO.getDob_month().isEmpty()) {
+            existingProfile.setDob_month(updatedProfileInfoDTO.getDob_month());
         }
-        if (updatedProfileDTO.getDob_year() != null && !updatedProfileDTO.getDob_year().isEmpty()) {
-            existingProfile.setDob_year(updatedProfileDTO.getDob_year());
+        if (updatedProfileInfoDTO.getDob_year() != null && !updatedProfileInfoDTO.getDob_year().isEmpty()) {
+            existingProfile.setDob_year(updatedProfileInfoDTO.getDob_year());
         }
-        if (updatedProfileDTO.getSchool() != null && !updatedProfileDTO.getSchool().isEmpty()) {
-            existingProfile.setSchool(updatedProfileDTO.getSchool());
+        if (updatedProfileInfoDTO.getSchool() != null && !updatedProfileInfoDTO.getSchool().isEmpty()) {
+            existingProfile.setSchool(updatedProfileInfoDTO.getSchool());
         }
-        if (updatedProfileDTO.getStrength_subjects() != null && updatedProfileDTO.getStrength_subjects().length > 0) {
-            existingProfile.setStrength_subjects(updatedProfileDTO.getStrength_subjects());
+        if (updatedProfileInfoDTO.getStrength_subjects() != null && updatedProfileInfoDTO.getStrength_subjects().length > 0) {
+            existingProfile.setStrength_subjects(updatedProfileInfoDTO.getStrength_subjects());
         }
-        if (updatedProfileDTO.getWeak_subjects() != null && updatedProfileDTO.getWeak_subjects().length > 0) {
-            existingProfile.setWeak_subjects(updatedProfileDTO.getWeak_subjects());
+        if (updatedProfileInfoDTO.getWeak_subjects() != null && updatedProfileInfoDTO.getWeak_subjects().length > 0) {
+            existingProfile.setWeak_subjects(updatedProfileInfoDTO.getWeak_subjects());
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.anpatapain.coffwok.profile.model;
 
-import com.anpatapain.coffwok.profile.controller.ProfileController;
+import com.anpatapain.coffwok.profile.controller.ProfileInfoController;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
@@ -13,8 +13,8 @@ public class ProfileAssembler implements RepresentationModelAssembler<Profile, E
     @Override
     public EntityModel<Profile> toModel(Profile profile) {
         return EntityModel.of(profile,
-                linkTo(methodOn(ProfileController.class).one(profile.getId())).withSelfRel(),
-                linkTo(methodOn(ProfileController.class).all()).withRel("profiles")
+                linkTo(methodOn(ProfileInfoController.class).one(profile.getId())).withSelfRel(),
+                linkTo(methodOn(ProfileInfoController.class).all()).withRel("profiles")
         );
     }
 }

@@ -15,62 +15,29 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @Service
 public class ImageStorageServiceImpl implements ImageStorageService {
-    private final Path root = Paths.get("uploads");
-
 
     @Autowired
     private Cloudinary cloudinaryConfig;
 
     @Override
-    public void init() {
-        try {
-            Files.createDirectories(root);
-        }catch (IOException e) {
-            throw new RuntimeException("Could not initialize folder for uploading");
-        }
-    }
-
-    @Override
-    public void save(MultipartFile file) {
-        try {
-            Files.copy(file.getInputStream(), this.root.resolve(file.getOriginalFilename()));
-        }catch (Exception e) {
-            if (e instanceof FileAlreadyExistsException) {
-                throw new RuntimeException("File of that name already existed");
-            }
-            throw new RuntimeException(e.getMessage());
-        }
-    }
-
-    @Override
     public String saveToCloudinary(MultipartFile file) {
-        Map<?, ?> params = ObjectUtils.asMap(
-                "public_id", "coffwok_dev/" + StringUtils.cleanPath(file.getOriginalFilename())
-        );
+        String originalFilename = file.getOriginalFilename();
+        String extension = StringUtils.getFilenameExtension(originalFilename);
+        String uniqueFileName = UUID.randomUUID().toString() + "." + extension;
+        String imagePublicId = "coffwok_dev/" + uniqueFileName;
+
+        Map<?, ?> params = ObjectUtils.asMap("public_id", imagePublicId);
+
         try{
             Map<?, ?> uploadResult = cloudinaryConfig.uploader().upload(file.getBytes(), params);
             return (String) uploadResult.get("secure_url");
         }catch (Exception e) {
             throw new ImageUploadException();
         }
-    }
-
-    @Override
-    public Resource load(String filename) {
-        return null;
-    }
-
-    @Override
-    public void deleteAll() {
-
-    }
-
-    @Override
-    public Stream<Path> loadAll() {
-        return null;
     }
 }

@@ -6,7 +6,7 @@ import lombok.*;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 @Data
-public class ProfileDTO {
+public class ProfileInfoDTO {
     @NotBlank
     @Size(max = 50, message = "name must not be too long maximum 50 chars")
     private String name;

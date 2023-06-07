@@ -10,16 +10,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 
 @SpringBootApplication
 @EnableConfigurationProperties(AppProperties.class)
-public class CoffwokApplication implements CommandLineRunner {
-    @Resource
-    ImageStorageService storageService;
-
+public class CoffwokApplication {
     public static void main(String[] args) {
         SpringApplication.run(CoffwokApplication.class, args);
-    }
-
-    @Override
-    public void run(String... args) throws Exception {
-        storageService.init();
     }
 }
