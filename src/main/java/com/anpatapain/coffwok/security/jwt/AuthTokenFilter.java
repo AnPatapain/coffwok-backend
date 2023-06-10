@@ -1,5 +1,6 @@
 package com.anpatapain.coffwok.security.jwt;
 
+import com.anpatapain.coffwok.common.exception.ResourceNotFoundException;
 import com.anpatapain.coffwok.security.UserPrincipal;
 import com.anpatapain.coffwok.security.utils.JwtUtils;
 import jakarta.servlet.FilterChain;
@@ -36,13 +37,18 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         if(jwt != null && jwtUtils.validateJwtToken(jwt)) {
             String userId = jwtUtils.getUserIdFromJwtToken(jwt);
             logger.info("userId: " + userId);
-            UserDetails userDetails = customUserDetailsService.loadUserByUserId(userId);
 
-            UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(userDetails,
-                            null, userDetails.getAuthorities());
-            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            try {
+                UserDetails userDetails = customUserDetailsService.loadUserByUserId(userId);
+                UsernamePasswordAuthenticationToken authenticationToken =
+                        new UsernamePasswordAuthenticationToken(userDetails,
+                                null, userDetails.getAuthorities());
+                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            }catch (ResourceNotFoundException e) {
+                logger.error(e.getMessage());
+                return;
+            }
         }
         filterChain.doFilter(request, response);
     }

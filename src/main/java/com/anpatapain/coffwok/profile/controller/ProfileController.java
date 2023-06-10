@@ -27,7 +27,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/profiles")
-public class ProfileInfoController {
+public class ProfileController {
     private UserRepository userRepository;
 
     private ProfileService profileService;
@@ -36,32 +36,57 @@ public class ProfileInfoController {
 
     private ImageStorageService storageService;
 
-    private Logger logger = LoggerFactory.getLogger(ProfileInfoController.class);
+    private Logger logger = LoggerFactory.getLogger(ProfileController.class);
 
 
     @Autowired
-    public ProfileInfoController(UserRepository userRepository,
-                                 ProfileService profileService,
-                                 ImageStorageService storageService,
-                                 UserService userService) {
+    public ProfileController(UserRepository userRepository,
+                             ProfileService profileService,
+                             ImageStorageService storageService,
+                             UserService userService) {
         this.userRepository = userRepository;
         this.profileService = profileService;
         this.storageService = storageService;
         this.userService = userService;
     }
 
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> getCurrentProfile() {
+        User user;
+        try{
+            user = userService.getCurrentAuthenticatedUser();
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage() + "user not found");
+        }
+        if(user.getProfileId() == null) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("profile not found for user");
+        }
+
+        try {
+            EntityModel<Profile> profileEntity = profileService.getOne(user.getProfileId());
+            return ResponseEntity.ok(profileEntity);
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
+        }
+    }
+
     @GetMapping("")
     @PreAuthorize("hasRole('USER')")
     public CollectionModel<EntityModel<Profile>> all() {
         List<EntityModel<Profile>> profileEntities = profileService.getAll();
-        return CollectionModel.of(profileEntities, linkTo(methodOn(ProfileInfoController.class).all()).withRel("profiles"));
+        return CollectionModel.of(profileEntities, linkTo(methodOn(ProfileController.class).all()).withRel("profiles"));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> one(@PathVariable String id) {
-        EntityModel<Profile> profileEntity = profileService.getOne(id);
-        return ResponseEntity.ok(profileEntity);
+        try {
+            EntityModel<Profile> profileEntity = profileService.getOne(id);
+            return ResponseEntity.ok(profileEntity);
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
+        }
     }
 
     @PostMapping(value = "")

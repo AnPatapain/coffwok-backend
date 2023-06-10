@@ -45,6 +45,7 @@ public class ProfileServiceImpl implements ProfileService{
         this.validator = validator;
     }
 
+
     @Override
     public List<EntityModel<Profile>> getAll() {
         List<EntityModel<Profile>> profileEntities = profileRepository.findAll()
