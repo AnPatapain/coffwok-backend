@@ -110,6 +110,16 @@ public class ProfileController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> putOne(@PathVariable String id, @Valid @RequestBody ProfileInfoDTO updatedProfileInfoDTO) {
+        User user;
+        try{
+            user = userService.getCurrentAuthenticatedUser();
+            if(user.getProfileId() == null || !user.getProfileId().equals(id)) {
+                return ResponseEntity.badRequest().body("you are not the owner of this profile");
+            }
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage() + "user not found");
+        }
+
         EntityModel<Profile> updatedProfileEntity;
         try {
             updatedProfileEntity = profileService.putProfile(id, updatedProfileInfoDTO);
@@ -122,6 +132,16 @@ public class ProfileController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> patchOne(@PathVariable String id, @RequestBody ProfileInfoDTO partialUpdatedProfileInfoDTO) {
+        User user;
+        try{
+            user = userService.getCurrentAuthenticatedUser();
+            if(user.getProfileId() == null || !user.getProfileId().equals(id)) {
+                return ResponseEntity.badRequest().body("you are not the owner of this profile");
+            }
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage() + "user not found");
+        }
+
         EntityModel<Profile> updatedProfileEntity;
         try {
             updatedProfileEntity = profileService.patchProfile(id, partialUpdatedProfileInfoDTO);
@@ -134,6 +154,16 @@ public class ProfileController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> deleteOne(@PathVariable String id) {
+        User user;
+        try{
+            user = userService.getCurrentAuthenticatedUser();
+            if(user.getProfileId() == null || !user.getProfileId().equals(id)) {
+                return ResponseEntity.badRequest().body("you are not the owner of this profile");
+            }
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage() + "user not found");
+        }
+
         profileService.deleteProfile(id);
         return ResponseEntity.ok("Profile deleted successfully");
     }
