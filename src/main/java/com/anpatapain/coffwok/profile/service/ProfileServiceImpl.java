@@ -74,6 +74,9 @@ public class ProfileServiceImpl implements ProfileService{
                 profileInfoDTO.getStrength_subjects(),
                 profileInfoDTO.getWeak_subjects()
         );
+        if(profileInfoDTO.getGender() != null && !profileInfoDTO.getGender().isEmpty()) {
+            profile.setGender(profileInfoDTO.getGender());
+        }
 
         profile.setUserId(user.getId());
         profile = profileRepository.save(profile);
@@ -160,6 +163,9 @@ public class ProfileServiceImpl implements ProfileService{
         }
         if (updatedProfileInfoDTO.getSchool() != null && !updatedProfileInfoDTO.getSchool().isEmpty()) {
             existingProfile.setSchool(updatedProfileInfoDTO.getSchool());
+        }
+        if (updatedProfileInfoDTO.getGender() != null && !updatedProfileInfoDTO.getGender().isEmpty()) {
+            existingProfile.setGender(updatedProfileInfoDTO.getGender());
         }
         if (updatedProfileInfoDTO.getStrength_subjects() != null && updatedProfileInfoDTO.getStrength_subjects().length > 0) {
             existingProfile.setStrength_subjects(updatedProfileInfoDTO.getStrength_subjects());

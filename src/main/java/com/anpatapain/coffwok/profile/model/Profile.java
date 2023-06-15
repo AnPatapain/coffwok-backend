@@ -38,6 +38,8 @@ public class Profile {
     @NotBlank
     private String dob_year;
 
+    private String gender;
+
     @NotBlank
     private String school;
 

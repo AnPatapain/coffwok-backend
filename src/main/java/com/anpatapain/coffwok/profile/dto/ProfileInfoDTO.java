@@ -27,6 +27,8 @@ public class ProfileInfoDTO {
     @NotBlank
     private String school;
 
+    private String gender;
+
 
     private String[] strength_subjects;
 
