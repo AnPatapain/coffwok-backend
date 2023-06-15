@@ -28,25 +28,18 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RestController
 @RequestMapping("/api/profiles")
 public class ProfileController {
-    private UserRepository userRepository;
 
     private ProfileService profileService;
 
     private UserService userService;
 
-    private ImageStorageService storageService;
-
     private Logger logger = LoggerFactory.getLogger(ProfileController.class);
 
 
     @Autowired
-    public ProfileController(UserRepository userRepository,
-                             ProfileService profileService,
-                             ImageStorageService storageService,
+    public ProfileController(ProfileService profileService,
                              UserService userService) {
-        this.userRepository = userRepository;
         this.profileService = profileService;
-        this.storageService = storageService;
         this.userService = userService;
     }
 

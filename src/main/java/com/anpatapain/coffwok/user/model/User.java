@@ -33,6 +33,8 @@ public class User {
 
     private String profileId;
 
+    private String planId;
+
     public User(String email, String password) {
         this.email = email;
         this.password = password;
