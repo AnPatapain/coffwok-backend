@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: mongodb+srv://Cluster46068:Keanlk192002@cluster46068.xxm5ube.mongodb.net/?retryWrites=true&w=majority
+      uri: mongodb+srv://Cluster46068:Keanlk192002%40nkalk192002@cluster46068.xxm5ube.mongodb.net/?retryWrites=true&w=majority
       database: coffwok_dev
 #    mongodb:
 #      host: localhost
