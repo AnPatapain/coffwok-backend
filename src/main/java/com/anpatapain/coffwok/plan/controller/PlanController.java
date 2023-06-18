@@ -4,6 +4,8 @@ import com.anpatapain.coffwok.common.exception.ResourceNotFoundException;
 import com.anpatapain.coffwok.plan.dto.PlanDto;
 import com.anpatapain.coffwok.plan.model.Plan;
 import com.anpatapain.coffwok.plan.service.PlanService;
+import com.anpatapain.coffwok.profile.controller.ProfileController;
+import com.anpatapain.coffwok.profile.model.Profile;
 import com.anpatapain.coffwok.user.model.User;
 import com.anpatapain.coffwok.user.service.UserService;
 import jakarta.validation.Valid;
@@ -15,6 +17,11 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/plans")
@@ -32,7 +39,8 @@ public class PlanController {
     @GetMapping("")
     @PreAuthorize("hasRole('USER')")
     public CollectionModel<EntityModel<Plan>> all() {
-        return null;
+        List<EntityModel<Plan>> planEntities = planService.getAll();
+        return CollectionModel.of(planEntities, linkTo(methodOn(PlanController.class).all()).withRel("plans"));
     }
 
     @GetMapping("/{id}")
