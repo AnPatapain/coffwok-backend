@@ -1,5 +1,6 @@
 package com.anpatapain.coffwok.plan.service;
 
+import com.anpatapain.coffwok.common.exception.ResourceNotFoundException;
 import com.anpatapain.coffwok.plan.dto.PlanDto;
 import com.anpatapain.coffwok.plan.model.Plan;
 import com.anpatapain.coffwok.plan.model.PlanAssembler;
@@ -33,14 +34,18 @@ public class PlanServiceImpl implements PlanService{
 
     @Override
     public List<EntityModel<Plan>> getAll() {
-        //TODO: Parker
-        return null;
+        List<EntityModel<Plan>> planEntities = this.planRepository.findAll()
+                .stream()
+                .map(this.planAssembler::toModel)
+                .toList();
+        return planEntities;
     }
 
     @Override
     public EntityModel<Plan> getOne(String id) {
-        //TODO: Parker
-        return null;
+        Plan plan = planRepository.findPlanById(id).orElseThrow(()->new ResourceNotFoundException("plan","id",id));
+
+        return planAssembler.toModel(plan);
     }
 
     @Override
@@ -60,6 +65,11 @@ public class PlanServiceImpl implements PlanService{
 
     @Override
     public void deletePlan(String id) {
-        //TODO: Parker
+        Plan plan = planRepository.findPlanById(id).orElseThrow(()->new ResourceNotFoundException("plan","id",id));
+        String userid = plan.getUserId();
+        User user = userRepository.findById(userid).orElseThrow(()-> new ResourceNotFoundException("user","id",userid));
+        user.setPlanId(null);
+        userRepository.save(user);
+        planRepository.deleteById(id);
     }
 }
