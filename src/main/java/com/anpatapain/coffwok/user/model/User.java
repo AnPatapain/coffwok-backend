@@ -9,6 +9,9 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Document(collection = "users")
 @Getter @Setter @NoArgsConstructor
 public class User {
@@ -34,6 +37,12 @@ public class User {
     private String profileId;
 
     private String planId;
+
+    private List<String> chatRoomIds = new ArrayList<>();
+
+    public void addChatRoomId(String chatRoomId) {
+        chatRoomIds.add(chatRoomId);
+    }
 
     public User(String email, String password) {
         this.email = email;

@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface ChatService {
     public ChatRoom getChatRoomByUserIds(String userId1, String userId2);
+    public ChatRoom createChatRoom(String userId1, String userId2);
     public List<ChatRoom> getAllByUserId(String userId);
     public void deleteOneById(String chatRoomId);
 }
