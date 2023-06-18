@@ -32,7 +32,7 @@ app:
 
   auth:
     tokenSecret: Keanlk192002
-    tokenExpirationSec: 864000000
+    tokenExpirationSec: 5184000000
 
   oauth2:
     authorizedRedirectUris:

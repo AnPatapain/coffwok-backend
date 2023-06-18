@@ -1,6 +1,7 @@
 package com.anpatapain.coffwok.plan.controller;
 
 import com.anpatapain.coffwok.common.exception.ResourceNotFoundException;
+import com.anpatapain.coffwok.common.payload.response.ApiResponse;
 import com.anpatapain.coffwok.plan.dto.PlanDto;
 import com.anpatapain.coffwok.plan.model.Plan;
 import com.anpatapain.coffwok.plan.service.PlanService;
@@ -32,12 +33,14 @@ public class PlanController {
     @GetMapping("")
     @PreAuthorize("hasRole('USER')")
     public CollectionModel<EntityModel<Plan>> all() {
+        //TODO: Parker
         return null;
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> one(@PathVariable String id) {
+        //TODO: Parker
         return null;
     }
 
@@ -51,8 +54,19 @@ public class PlanController {
             return ResponseEntity.badRequest().body(e.getMessage() + "user not found");
         }
 
-        EntityModel<Plan> planEntityModel = planService.createPlan(user, planDto);
-        return ResponseEntity.ok(planEntityModel);
+        if(user.getPlanId() == null) {
+            EntityModel<Plan> planEntityModel = planService.createPlan(user, planDto);
+            return ResponseEntity.ok(planEntityModel);
+        }else {
+            return ResponseEntity.badRequest().body(new ApiResponse(false, "User has already plan"));
+        }
     }
 
+    /**
+     * TODO: putOne, patchOne, deleteOne
+     *       Parker + Dau
+     */
+
 }
+
+
