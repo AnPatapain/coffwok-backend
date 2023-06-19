@@ -1,6 +1,9 @@
 package com.anpatapain.coffwok.chat.service;
 
+import com.anpatapain.coffwok.chat.dto.MessageDTO;
+import com.anpatapain.coffwok.chat.exception.UnAuthorizedActionException;
 import com.anpatapain.coffwok.chat.model.ChatRoom;
+import com.anpatapain.coffwok.chat.model.Message;
 import com.anpatapain.coffwok.chat.repository.ChatRoomRepository;
 import com.anpatapain.coffwok.common.exception.ResourceNotFoundException;
 import com.anpatapain.coffwok.user.model.User;
@@ -78,6 +81,28 @@ public class ChatServiceImpl implements ChatService{
                 .map(Optional::get)
                 .collect(Collectors.toList());
         return chatRooms;
+    }
+
+    public ChatRoom pushMessageIntoChatRoom(User user, MessageDTO messageDTO, String chat_room_id)
+            throws UnAuthorizedActionException, ResourceNotFoundException{
+        // Ensure that chatroom exists
+        ChatRoom chatRoom = chatRoomRepository.findById(chat_room_id)
+                .orElseThrow(() -> new ResourceNotFoundException("chatroom", "id", chat_room_id));
+
+        // Ensure that current user is member of this chatroom
+        if(!user.getId().equals(chatRoom.getUserId1()) && !user.getId().equals(chatRoom.getUserId2())) {
+            throw new UnAuthorizedActionException("Unauthorized action. You must be in the chat room to do this action");
+        }
+
+        Message message = new Message(messageDTO.getMessageType(),
+                                      messageDTO.getLocalDateTime(),
+                                      messageDTO.getText(),
+                                      messageDTO.getSenderId(),
+                                      chat_room_id);
+        chatRoom.addMessage(message);
+        chatRoom = chatRoomRepository.save(chatRoom);
+
+        return chatRoom;
     }
 
     @Override

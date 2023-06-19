@@ -1,11 +1,13 @@
 package com.anpatapain.coffwok.chat.model;
 
+import jakarta.annotation.Generated;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter @Setter @NoArgsConstructor
 public class Message {
@@ -15,13 +17,14 @@ public class Message {
     private LocalDateTime timeStamp;
     private String text;
     private String senderId;
-    private String receiverId;
+    private String chatRoomId;
 
-    public Message(MessageType type, LocalDateTime timeStamp, String text, String senderId, String receiverId) {
+    public Message(MessageType type, LocalDateTime timeStamp, String text, String senderId, String chatRoomId) {
+        this.id = UUID.randomUUID().toString();
         this.type = type;
         this.timeStamp = timeStamp;
         this.text = text;
         this.senderId = senderId;
-        this.receiverId = receiverId;
+        this.chatRoomId = chatRoomId;
     }
 }
