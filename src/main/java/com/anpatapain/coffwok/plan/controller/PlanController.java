@@ -5,6 +5,7 @@ import com.anpatapain.coffwok.common.payload.response.ApiResponse;
 import com.anpatapain.coffwok.plan.dto.PlanDto;
 import com.anpatapain.coffwok.plan.model.Plan;
 import com.anpatapain.coffwok.plan.service.PlanService;
+import com.anpatapain.coffwok.profile.model.Profile;
 import com.anpatapain.coffwok.user.model.User;
 import com.anpatapain.coffwok.user.service.UserService;
 import jakarta.validation.Valid;
@@ -34,6 +35,27 @@ public class PlanController {
     public PlanController(PlanService planService, UserService userService) {
         this.planService = planService;
         this.userService = userService;
+    }
+
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> getCurrentPlan() {
+        User user;
+        try{
+            user = userService.getCurrentAuthenticatedUser();
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage() + "user not found");
+        }
+        if(user.getPlanId() == null) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("profile not found for user");
+        }
+
+        try {
+            EntityModel<Plan> planEntityModel = planService.getOne(user.getPlanId());
+            return ResponseEntity.ok(planEntityModel);
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
+        }
     }
 
     @GetMapping("")

@@ -44,7 +44,6 @@ public class PlanServiceImpl implements PlanService{
     @Override
     public EntityModel<Plan> getOne(String id) throws ResourceNotFoundException{
         Plan plan = planRepository.findPlanById(id).orElseThrow(()->new ResourceNotFoundException("plan","id",id));
-
         return planAssembler.toModel(plan);
     }
 
