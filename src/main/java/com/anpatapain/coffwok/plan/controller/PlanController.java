@@ -5,8 +5,6 @@ import com.anpatapain.coffwok.common.payload.response.ApiResponse;
 import com.anpatapain.coffwok.plan.dto.PlanDto;
 import com.anpatapain.coffwok.plan.model.Plan;
 import com.anpatapain.coffwok.plan.service.PlanService;
-import com.anpatapain.coffwok.profile.controller.ProfileController;
-import com.anpatapain.coffwok.profile.model.Profile;
 import com.anpatapain.coffwok.user.model.User;
 import com.anpatapain.coffwok.user.service.UserService;
 import jakarta.validation.Valid;
@@ -116,7 +114,6 @@ public class PlanController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> patchOne(@PathVariable String id,@RequestBody PlanDto partialUpdatePlanDto){
-        logger.info("patch triggered");
         User user;
         try{
             user = userService.getCurrentAuthenticatedUser();
