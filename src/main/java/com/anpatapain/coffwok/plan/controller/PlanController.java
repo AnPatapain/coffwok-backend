@@ -87,7 +87,7 @@ public class PlanController {
 
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasrole('USER')")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> putOne(@PathVariable String id,@Valid @RequestBody PlanDto updatePlanDto){
         User user;
         try{
@@ -108,8 +108,9 @@ public class PlanController {
         return ResponseEntity.ok(updatePlanEntity);
     }
     @PatchMapping("/{id}")
-    @PreAuthorize("hasrole('USER')")
-    public ResponseEntity<?> patchOne(@PathVariable String id,@Valid @RequestBody PlanDto partialUpdatePlanDto){
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> patchOne(@PathVariable String id,@RequestBody PlanDto partialUpdatePlanDto){
+        logger.info("patch triggered");
         User user;
         try{
             user = userService.getCurrentAuthenticatedUser();
