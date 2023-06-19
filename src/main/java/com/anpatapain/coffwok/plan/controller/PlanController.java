@@ -1,6 +1,7 @@
 package com.anpatapain.coffwok.plan.controller;
 
 import com.anpatapain.coffwok.common.exception.ResourceNotFoundException;
+import com.anpatapain.coffwok.common.payload.response.ApiResponse;
 import com.anpatapain.coffwok.plan.dto.PlanDto;
 import com.anpatapain.coffwok.plan.model.Plan;
 import com.anpatapain.coffwok.plan.service.PlanService;
@@ -53,6 +54,7 @@ public class PlanController {
         }catch(ResourceNotFoundException e){
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
         }
+
     }
 
     @PostMapping("")
@@ -65,8 +67,12 @@ public class PlanController {
             return ResponseEntity.badRequest().body(e.getMessage() + "user not found");
         }
 
-        EntityModel<Plan> planEntityModel = planService.createPlan(user, planDto);
-        return ResponseEntity.ok(planEntityModel);
+        if(user.getPlanId() == null) {
+            EntityModel<Plan> planEntityModel = planService.createPlan(user, planDto);
+            return ResponseEntity.ok(planEntityModel);
+        }else {
+            return ResponseEntity.badRequest().body(new ApiResponse(false, "User has already plan"));
+        }
     }
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
@@ -130,3 +136,5 @@ public class PlanController {
         return ResponseEntity.ok(updatePlanEntity);
     }
 }
+
+
