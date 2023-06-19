@@ -128,13 +128,26 @@ public class ChatController {
     }
 
     /**
-     * Delete chat room identified by id.
-     * @param id
+     * Delete all current user's message in one specific chat room
+     * @param chat_room_id
      * @return
      */
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{chat_room_id}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> deleteOne(@PathVariable String id) {
-        return null;
+    public ResponseEntity<?> deleteAllMessagesOfCurrentUser(@PathVariable String chat_room_id) {
+        User user;
+        try {
+            user = userService.getCurrentAuthenticatedUser();
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("user not found");
+        }
+
+        try {
+            ChatRoom chatRoom = chatService.deleteAllMessageForUser(user, chat_room_id);
+            return ResponseEntity.ok(chatRoom);
+        }catch (ResourceNotFoundException | UnAuthorizedActionException e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
+        }
+
     }
 }

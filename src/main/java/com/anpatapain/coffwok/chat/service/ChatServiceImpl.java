@@ -89,10 +89,13 @@ public class ChatServiceImpl implements ChatService{
         ChatRoom chatRoom = chatRoomRepository.findById(chat_room_id)
                 .orElseThrow(() -> new ResourceNotFoundException("chatroom", "id", chat_room_id));
 
-        // Ensure that current user is member of this chatroom
-        if(!user.getId().equals(chatRoom.getUserId1()) && !user.getId().equals(chatRoom.getUserId2())) {
-            throw new UnAuthorizedActionException("Unauthorized action. You must be in the chat room to do this action");
+        // Ensure that current user is member of this chatroom and messageDTO.senderId must be equal to user.id
+        if( ( !user.getId().equals(chatRoom.getUserId1()) && !user.getId().equals(chatRoom.getUserId2()) )
+                || !messageDTO.getSenderId().equals(user.getId()) ) {
+            throw new UnAuthorizedActionException("Unauthorized action. You must be in the chat room or sender to do this action");
         }
+
+        //TODO: Check whether userId == messageDTO.getSenderId() or not
 
         Message message = new Message(messageDTO.getMessageType(),
                                       messageDTO.getLocalDateTime(),
@@ -102,6 +105,27 @@ public class ChatServiceImpl implements ChatService{
         chatRoom.addMessage(message);
         chatRoom = chatRoomRepository.save(chatRoom);
 
+        return chatRoom;
+    }
+
+    public ChatRoom deleteAllMessageForUser(User user, String chat_room_id)
+            throws ResourceNotFoundException, UnAuthorizedActionException{
+        // Ensure that chatroom exists
+        ChatRoom chatRoom = chatRoomRepository.findById(chat_room_id)
+                .orElseThrow(() -> new ResourceNotFoundException("chatroom", "id", chat_room_id));
+
+        // Ensure that current user is member of this chatroom
+        if(!user.getId().equals(chatRoom.getUserId1()) && !user.getId().equals(chatRoom.getUserId2())) {
+            throw new UnAuthorizedActionException("Unauthorized action. You must be in the chat room to do this action");
+        }
+
+        List<Message> newMessages = chatRoom.getMessages()
+                .stream()
+                .filter(message -> !message.getSenderId().equals(user.getId()))
+                .collect(Collectors.toList());
+
+        chatRoom.setMessages(newMessages);
+        chatRoom = chatRoomRepository.save(chatRoom);
         return chatRoom;
     }
 
