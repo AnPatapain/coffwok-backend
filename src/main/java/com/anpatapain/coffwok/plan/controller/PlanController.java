@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -46,7 +47,12 @@ public class PlanController {
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> one(@PathVariable String id) {
-        return null;
+        try{
+            EntityModel<Plan> planEntity = planService.getOne(id);
+            return ResponseEntity.ok(planEntity);
+        }catch(ResourceNotFoundException e){
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
+        }
     }
 
     @PostMapping("")
@@ -62,5 +68,64 @@ public class PlanController {
         EntityModel<Plan> planEntityModel = planService.createPlan(user, planDto);
         return ResponseEntity.ok(planEntityModel);
     }
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity deleteOne(@PathVariable String id){
+        User user;
+        try{
+            user = userService.getCurrentAuthenticatedUser();
+            if(user.getPlanId()==null || !user.getPlanId().equals(id)){
+                return  ResponseEntity.badRequest().body("you are not the owner of this plan");
+            }
+        }catch (ResourceNotFoundException e){
+            return ResponseEntity.badRequest().body(e.getMessage()+"user not found");
+        }
 
+        planService.deletePlan(id);
+        return ResponseEntity.ok("Plan deleted successfully");
+    }
+
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasrole('USER')")
+    public ResponseEntity<?> putOne(@PathVariable String id,@Valid @RequestBody PlanDto updatePlanDto){
+        User user;
+        try{
+            user = userService.getCurrentAuthenticatedUser();
+            if(user.getPlanId() == null || !user.getPlanId().equals(id)) {
+                return ResponseEntity.badRequest().body("you are not the owner of this plan");
+            }
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage() + "user not found");
+        }
+
+        EntityModel<Plan> updatePlanEntity;
+        try{
+            updatePlanEntity = planService.putPlan(id,updatePlanDto);
+        }catch (ResourceNotFoundException e){
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
+        }
+        return ResponseEntity.ok(updatePlanEntity);
+    }
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasrole('USER')")
+    public ResponseEntity<?> patchOne(@PathVariable String id,@Valid @RequestBody PlanDto partialUpdatePlanDto){
+        User user;
+        try{
+            user = userService.getCurrentAuthenticatedUser();
+            if(user.getPlanId() == null || !user.getPlanId().equals(id)) {
+                return ResponseEntity.badRequest().body("you are not the owner of this plan");
+            }
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage() + "user not found");
+        }
+
+        EntityModel<Plan> updatePlanEntity;
+        try{
+            updatePlanEntity = planService.putPlan(id,partialUpdatePlanDto);
+        }catch (ResourceNotFoundException e){
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
+        }
+        return ResponseEntity.ok(updatePlanEntity);
+    }
 }

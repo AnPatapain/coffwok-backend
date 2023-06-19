@@ -42,7 +42,7 @@ public class PlanServiceImpl implements PlanService{
     }
 
     @Override
-    public EntityModel<Plan> getOne(String id) {
+    public EntityModel<Plan> getOne(String id) throws ResourceNotFoundException{
         Plan plan = planRepository.findPlanById(id).orElseThrow(()->new ResourceNotFoundException("plan","id",id));
 
         return planAssembler.toModel(plan);
@@ -71,5 +71,32 @@ public class PlanServiceImpl implements PlanService{
         user.setPlanId(null);
         userRepository.save(user);
         planRepository.deleteById(id);
+    }
+
+    @Override
+    public EntityModel<Plan> patchPlan(String id,PlanDto partialUpdatePlanDto){
+        Plan existingPlan = planRepository.findPlanById(id)
+                .orElseThrow(()->new ResourceNotFoundException("plan","id",id));
+        updatePlanProperties(existingPlan,partialUpdatePlanDto);
+        Plan updatedPlan = planRepository.save(existingPlan);
+        return planAssembler.toModel(updatedPlan);
+    }
+
+    @Override
+    public EntityModel<Plan> putPlan(String id, PlanDto updatePlanDto){
+        Plan existingPlan = planRepository.findPlanById(id)
+                .orElseThrow(()->new ResourceNotFoundException("plan","id",id));
+        updatePlanProperties(existingPlan,updatePlanDto);
+        Plan updatedPlan = planRepository.save(existingPlan);
+        return planAssembler.toModel(updatedPlan);
+    }
+
+    private void updatePlanProperties(Plan existingPlan, PlanDto updatePlanDTO){
+        if(updatePlanDTO.getSchedule()!= null ){
+            existingPlan.setSchedule(updatePlanDTO.getSchedule());
+        }
+        if(updatePlanDTO.getCoffeeShop()!= null && !updatePlanDTO.getCoffeeShop().isEmpty() ){
+            existingPlan.setCoffeeShop(updatePlanDTO.getCoffeeShop());
+        }
     }
 }

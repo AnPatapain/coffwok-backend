@@ -12,4 +12,6 @@ public interface PlanService {
     public EntityModel<Plan> getOne(String id);
     public EntityModel<Plan> createPlan(User user, PlanDto planDto);
     public void deletePlan(String id);
+    public EntityModel<Plan> patchPlan(String id, PlanDto partialUpdatePlanDto);
+    public EntityModel<Plan> putPlan(String id, PlanDto updatePlanDto);
 }
