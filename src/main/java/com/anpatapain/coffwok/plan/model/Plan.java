@@ -17,13 +17,25 @@ public class Plan {
 
     private String userId;
 
+    private String name;
+
+    private String imgUrl;
+
+    private String school;
+
+    private String[] strength_subjects;
+
+    private String[] weak_subjects;
+
     @NotBlank
     private String coffeeShop;
 
     @NotBlank
-    private LocalDateTime schedule;
+    private String schedule;
 
-    public Plan(String coffeeShop, LocalDateTime schedule) {
+
+    // Construct Plan by DTO
+    public Plan(String coffeeShop, String schedule) {
         this.coffeeShop = coffeeShop;
         this.schedule = schedule;
     }

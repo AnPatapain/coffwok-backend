@@ -5,6 +5,8 @@ import com.anpatapain.coffwok.plan.dto.PlanDto;
 import com.anpatapain.coffwok.plan.model.Plan;
 import com.anpatapain.coffwok.plan.model.PlanAssembler;
 import com.anpatapain.coffwok.plan.repository.PlanRepository;
+import com.anpatapain.coffwok.profile.model.Profile;
+import com.anpatapain.coffwok.profile.repository.ProfileRepository;
 import com.anpatapain.coffwok.user.model.User;
 import com.anpatapain.coffwok.user.repository.UserRepository;
 import org.slf4j.Logger;
@@ -20,16 +22,19 @@ import java.util.List;
 public class PlanServiceImpl implements PlanService{
     private Logger logger = LoggerFactory.getLogger(PlanServiceImpl.class);
     private UserRepository userRepository;
+    private ProfileRepository profileRepository;
     private PlanAssembler planAssembler;
     private PlanRepository planRepository;
 
     @Autowired
     public PlanServiceImpl(UserRepository userRepository,
                            PlanAssembler planAssembler,
+                           ProfileRepository profileRepository,
                            PlanRepository planRepository) {
         this.userRepository = userRepository;
         this.planAssembler = planAssembler;
         this.planRepository = planRepository;
+        this.profileRepository = profileRepository;
     }
 
     @Override
@@ -48,18 +53,30 @@ public class PlanServiceImpl implements PlanService{
     }
 
     @Override
-    public EntityModel<Plan> createPlan(User user, PlanDto planDto) {
-        Plan plan = new Plan(
-                planDto.getCoffeeShop(),
-                planDto.getSchedule()
-        );
+    public EntityModel<Plan> createPlan(User user, PlanDto planDto) throws ResourceNotFoundException{
+        if(user.getProfileId() != null) {
+            Profile profile = profileRepository.findById(user.getProfileId())
+                    .orElseThrow(() -> new ResourceNotFoundException("profile", "id", user.getProfileId()));
 
-        plan.setUserId(user.getId());
-        plan = planRepository.save(plan);
+            Plan plan = new Plan(
+                    planDto.getCoffeeShop(),
+                    planDto.getSchedule()
+            );
 
-        user.setPlanId(plan.getId());
-        userRepository.save(user);
-        return planAssembler.toModel(plan);
+            plan.setName(profile.getName());
+            plan.setSchool(profile.getSchool());
+            plan.setImgUrl(profile.getImgUrl());
+            plan.setStrength_subjects(profile.getStrength_subjects());
+            plan.setWeak_subjects(profile.getWeak_subjects());
+
+            plan.setUserId(user.getId());
+            plan = planRepository.save(plan);
+
+            user.setPlanId(plan.getId());
+            userRepository.save(user);
+            return planAssembler.toModel(plan);
+        }
+        return null;
     }
 
     @Override
