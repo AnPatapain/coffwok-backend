@@ -5,6 +5,7 @@ import com.anpatapain.coffwok.chat.exception.UnAuthorizedActionException;
 import com.anpatapain.coffwok.chat.model.ChatRoom;
 import com.anpatapain.coffwok.chat.service.ChatService;
 import com.anpatapain.coffwok.chat.service.ChatServiceImpl;
+import com.anpatapain.coffwok.chat.service.WebSocketService;
 import com.anpatapain.coffwok.common.exception.ResourceNotFoundException;
 import com.anpatapain.coffwok.user.model.User;
 import com.anpatapain.coffwok.user.service.UserService;
@@ -27,10 +28,13 @@ public class ChatController {
     private ChatService chatService;
     private UserService userService;
 
+    private WebSocketService webSocketService;
+
     @Autowired
-    public ChatController(ChatService chatService, UserService userService) {
+    public ChatController(ChatService chatService, UserService userService, WebSocketService webSocketService) {
         this.userService = userService;
         this.chatService = chatService;
+        this.webSocketService = webSocketService;
     }
 
     /**
@@ -120,7 +124,11 @@ public class ChatController {
         }
 
         try{
+            //call
+            this.webSocketService.notifyFrontend(messageDTO,chat_room_id);
+
             ChatRoom chatRoom = chatService.pushMessageIntoChatRoom(user, messageDTO, chat_room_id);
+
             return ResponseEntity.ok(chatRoom);
         }catch (ResourceNotFoundException | UnAuthorizedActionException e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());

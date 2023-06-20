@@ -97,7 +97,6 @@ public class ChatServiceImpl implements ChatService{
             throw new UnAuthorizedActionException("Unauthorized action. You must be in the chat room or sender to do this action");
         }
 
-        //TODO: Check whether userId == messageDTO.getSenderId() or not
 
         Message message = new Message(messageDTO.getMessageType(),
                                       messageDTO.getLocalDateTime(),
