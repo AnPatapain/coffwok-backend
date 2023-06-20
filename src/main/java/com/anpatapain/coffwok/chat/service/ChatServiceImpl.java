@@ -11,6 +11,7 @@ import com.anpatapain.coffwok.user.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,7 +22,9 @@ import java.util.stream.Collectors;
 @Service
 public class ChatServiceImpl implements ChatService{
     private Logger logger = LoggerFactory.getLogger(ChatServiceImpl.class);
+
     private ChatRoomRepository chatRoomRepository;
+
     private UserRepository userRepository;
 
     @Autowired
@@ -71,13 +74,12 @@ public class ChatServiceImpl implements ChatService{
 
         return chatRoom;
     }
-
     @Override
     public List<ChatRoom> getAllChatRoomsByCurrentUser(User user) {
         List<ChatRoom> chatRooms = user.getChatRoomIds()
                 .stream()
                 .map(chatRoomRepository::findById)
-                .filter(optionalChatRoom -> optionalChatRoom.isPresent())
+                .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
         return chatRooms;
