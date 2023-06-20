@@ -14,5 +14,5 @@ public class PlanDto {
     private String coffeeShop;
 
     @NotNull
-    private LocalDateTime schedule;
+    private String schedule;
 }
