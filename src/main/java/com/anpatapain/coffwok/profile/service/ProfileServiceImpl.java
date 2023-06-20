@@ -67,9 +67,7 @@ public class ProfileServiceImpl implements ProfileService{
         Profile profile = new Profile(
                 profileInfoDTO.getName(),
                 profileInfoDTO.getAbout(),
-                profileInfoDTO.getDob_day(),
-                profileInfoDTO.getDob_month(),
-                profileInfoDTO.getDob_year(),
+                profileInfoDTO.getDob(),
                 profileInfoDTO.getSchool(),
                 profileInfoDTO.getStrength_subjects(),
                 profileInfoDTO.getWeak_subjects()
@@ -152,14 +150,8 @@ public class ProfileServiceImpl implements ProfileService{
         if (updatedProfileInfoDTO.getAbout() != null && !updatedProfileInfoDTO.getAbout().isEmpty()) {
             existingProfile.setAbout(updatedProfileInfoDTO.getAbout());
         }
-        if (updatedProfileInfoDTO.getDob_day() != null && !updatedProfileInfoDTO.getDob_day().isEmpty()) {
-            existingProfile.setDob_day(updatedProfileInfoDTO.getDob_day());
-        }
-        if (updatedProfileInfoDTO.getDob_month() != null && !updatedProfileInfoDTO.getDob_month().isEmpty()) {
-            existingProfile.setDob_month(updatedProfileInfoDTO.getDob_month());
-        }
-        if (updatedProfileInfoDTO.getDob_year() != null && !updatedProfileInfoDTO.getDob_year().isEmpty()) {
-            existingProfile.setDob_year(updatedProfileInfoDTO.getDob_year());
+        if (updatedProfileInfoDTO.getDob() != null && !updatedProfileInfoDTO.getDob().isEmpty()) {
+            existingProfile.setDob(updatedProfileInfoDTO.getDob());
         }
         if (updatedProfileInfoDTO.getSchool() != null && !updatedProfileInfoDTO.getSchool().isEmpty()) {
             existingProfile.setSchool(updatedProfileInfoDTO.getSchool());

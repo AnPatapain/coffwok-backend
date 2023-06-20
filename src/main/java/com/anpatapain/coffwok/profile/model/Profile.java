@@ -27,13 +27,7 @@ public class Profile {
     private String imgUrl;
 
     @NotBlank
-    private String dob_day;
-
-    @NotBlank
-    private String dob_month;
-
-    @NotBlank
-    private String dob_year;
+    private String dob;
 
     private String gender;
 
@@ -46,13 +40,11 @@ public class Profile {
     private String[] weak_subjects;
 
     public Profile(String name, String about,
-                   String dob_day, String dob_month, String dob_year, String school,
+                   String dob_day, String school,
                    String[] strength_subjects, String[] weak_subjects) {
         this.name = name;
         this.about = about;
-        this.dob_day = dob_day;
-        this.dob_month = dob_month;
-        this.dob_year = dob_year;
+        this.dob = dob_day;
         this.school = school;
         this.strength_subjects = strength_subjects;
         this.weak_subjects = weak_subjects;
