@@ -16,13 +16,7 @@ public class ProfileInfoDTO {
     private String about;
 
     @NotBlank
-    private String dob_day;
-
-    @NotBlank
-    private String dob_month;
-
-    @NotBlank
-    private String dob_year;
+    private String dob;
 
     @NotBlank
     private String school;
