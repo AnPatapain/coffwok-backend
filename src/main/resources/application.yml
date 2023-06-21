@@ -37,4 +37,5 @@ app:
   oauth2:
     authorizedRedirectUris:
       - http://localhost:5173/oauth2/redirect
+      - https://www.coffwok.com/oauth2/redirect
 
