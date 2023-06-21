@@ -87,11 +87,11 @@ public class PlanController {
             return ResponseEntity.badRequest().body(e.getMessage() + "user not found");
         }
 
-        if(user.getPlanId() == null) {
+        if(user.getPlanId() == null && user.getProfileId() != null) {
             EntityModel<Plan> planEntityModel = planService.createPlan(user, planDto);
             return ResponseEntity.ok(planEntityModel);
         }else {
-            return ResponseEntity.badRequest().body(new ApiResponse(false, "User has already plan"));
+            return ResponseEntity.badRequest().body(new ApiResponse(false, "User has already plan or user has not created profile"));
         }
     }
     @DeleteMapping("/{id}")

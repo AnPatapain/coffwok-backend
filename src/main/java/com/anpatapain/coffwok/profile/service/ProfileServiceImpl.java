@@ -3,6 +3,8 @@ package com.anpatapain.coffwok.profile.service;
 import com.anpatapain.coffwok.common.exception.ResourceNotFoundException;
 import com.anpatapain.coffwok.image_upload.exception.ImageUploadException;
 import com.anpatapain.coffwok.image_upload.service.ImageStorageService;
+import com.anpatapain.coffwok.plan.model.Plan;
+import com.anpatapain.coffwok.plan.repository.PlanRepository;
 import com.anpatapain.coffwok.profile.dto.ProfileInfoDTO;
 import com.anpatapain.coffwok.profile.model.Profile;
 import com.anpatapain.coffwok.profile.model.ProfileAssembler;
@@ -28,6 +30,8 @@ public class ProfileServiceImpl implements ProfileService{
 
     private ImageStorageService imageStorageService;
 
+    private PlanRepository planRepository;
+
     private Validator validator;
 
     private Logger logger = LoggerFactory.getLogger(ProfileServiceImpl.class);
@@ -37,12 +41,14 @@ public class ProfileServiceImpl implements ProfileService{
                               UserRepository userRepository,
                               ProfileAssembler profileAssembler,
                               ImageStorageService imageStorageService,
-                              Validator validator) {
+                              Validator validator,
+                              PlanRepository planRepository) {
         this.profileRepository = profileRepository;
         this.userRepository = userRepository;
         this.profileAssembler = profileAssembler;
         this.imageStorageService = imageStorageService;
         this.validator = validator;
+        this.planRepository = planRepository;
     }
 
 
@@ -125,6 +131,21 @@ public class ProfileServiceImpl implements ProfileService{
         updateProfileProperties(existingProfile, partialUpdatedProfileInfoDTO);
 
         Profile updatedProfile = profileRepository.save(existingProfile);
+        String userId = updatedProfile.getUserId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(()->new ResourceNotFoundException("user","id",userId));
+
+        String planId = user.getPlanId();
+        Plan existingPlan = planRepository.findPlanById(planId)
+                    .orElseThrow(()->new ResourceNotFoundException("plan","id",planId));
+
+            existingPlan.setName(updatedProfile.getName());
+            existingPlan.setSchool(updatedProfile.getSchool());
+            existingPlan.setStrength_subjects(updatedProfile.getStrength_subjects());
+            existingPlan.setWeak_subjects(updatedProfile.getWeak_subjects());
+            planRepository.save(existingPlan);
+
+
 
         return profileAssembler.toModel(updatedProfile);
     }

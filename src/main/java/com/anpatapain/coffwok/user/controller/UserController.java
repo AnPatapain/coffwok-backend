@@ -14,10 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/user")
@@ -56,6 +53,17 @@ public class UserController {
             return ResponseEntity.ok(user);
         }catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
+        }
+    }
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> deleteUser(@PathVariable String id){
+        try{
+            User user = userService.getUserById(id);
+            userService.deleteUser(id);
+            return ResponseEntity.ok("User delete successfully");
+        }catch (ResourceNotFoundException e){
+            return  ResponseEntity.badRequest().body(e.getMessage()+"user not found");
         }
     }
 }
