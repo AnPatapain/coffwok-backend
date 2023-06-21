@@ -15,6 +15,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -42,6 +43,17 @@ public class UserController {
             }else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error when get current user");
             }
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> getOneById(@PathVariable String id) {
+        try {
+            User user = userService.getUserById(id);
+            return ResponseEntity.ok(user);
         }catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
         }
