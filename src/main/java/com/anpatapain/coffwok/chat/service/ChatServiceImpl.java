@@ -6,6 +6,8 @@ import com.anpatapain.coffwok.chat.model.ChatRoom;
 import com.anpatapain.coffwok.chat.model.Message;
 import com.anpatapain.coffwok.chat.repository.ChatRoomRepository;
 import com.anpatapain.coffwok.common.exception.ResourceNotFoundException;
+import com.anpatapain.coffwok.profile.model.Profile;
+import com.anpatapain.coffwok.profile.repository.ProfileRepository;
 import com.anpatapain.coffwok.user.model.User;
 import com.anpatapain.coffwok.user.repository.UserRepository;
 import org.slf4j.Logger;
@@ -27,11 +29,15 @@ public class ChatServiceImpl implements ChatService{
 
     private UserRepository userRepository;
 
+    private ProfileRepository profileRepository;
+
     @Autowired
     public ChatServiceImpl(ChatRoomRepository chatRoomRepository,
-                           UserRepository userRepository) {
+                           UserRepository userRepository,
+                           ProfileRepository profileRepository) {
         this.chatRoomRepository = chatRoomRepository;
         this.userRepository = userRepository;
+        this.profileRepository = profileRepository;
     }
 
     @Override
@@ -85,6 +91,30 @@ public class ChatServiceImpl implements ChatService{
         return chatRooms;
     }
 
+    @Override
+    public List<Profile> getAllProfiles(User user) {
+        List<ChatRoom> chatRooms = getAllChatRoomsByCurrentUser(user);
+
+        List<Profile> profiles = chatRooms
+                .stream()
+                .map(chatRoom -> {
+                    if(chatRoom.getUserId1().equals(user.getId())) {
+                        User user2 = userRepository.findById(chatRoom.getUserId2())
+                                .orElseThrow(() -> new ResourceNotFoundException("user", "id", chatRoom.getUserId2()));
+                        Profile profileUser2 = profileRepository.findById(user2.getProfileId())
+                                .orElseThrow(() -> new ResourceNotFoundException("profile", "id", user2.getProfileId()));
+                        return profileUser2;
+                    }
+                    User user1 = userRepository.findById(chatRoom.getUserId1())
+                            .orElseThrow(() -> new ResourceNotFoundException("user", "id", chatRoom.getUserId1()));
+                    Profile profileUser1 = profileRepository.findById(user1.getProfileId())
+                            .orElseThrow(() -> new ResourceNotFoundException("profile", "id", user1.getProfileId()));
+                    return profileUser1;
+                })
+                .collect(Collectors.toList());
+        return profiles;
+    }
+
     public ChatRoom pushMessageIntoChatRoom(User user, MessageDTO messageDTO, String chat_room_id)
             throws UnAuthorizedActionException, ResourceNotFoundException{
         // Ensure that chatroom exists
@@ -97,7 +127,6 @@ public class ChatServiceImpl implements ChatService{
             throw new UnAuthorizedActionException("Unauthorized action. You must be in the chat room or sender to do this action");
         }
 
-        //TODO: Check whether userId == messageDTO.getSenderId() or not
 
         Message message = new Message(messageDTO.getMessageType(),
                                       messageDTO.getLocalDateTime(),

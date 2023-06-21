@@ -29,4 +29,9 @@ public class UserService {
         }
         return null;
     }
+
+    public User getUserById(String id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("user", "id", id));
+        return user;
+    }
 }
