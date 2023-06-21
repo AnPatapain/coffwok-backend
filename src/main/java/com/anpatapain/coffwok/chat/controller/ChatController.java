@@ -7,6 +7,7 @@ import com.anpatapain.coffwok.chat.service.ChatService;
 import com.anpatapain.coffwok.chat.service.ChatServiceImpl;
 import com.anpatapain.coffwok.chat.service.WebSocketService;
 import com.anpatapain.coffwok.common.exception.ResourceNotFoundException;
+import com.anpatapain.coffwok.profile.model.Profile;
 import com.anpatapain.coffwok.user.model.User;
 import com.anpatapain.coffwok.user.service.UserService;
 import jakarta.validation.Valid;
@@ -112,6 +113,23 @@ public class ChatController {
         return ResponseEntity.ok(chatRooms);
     }
 
+    @GetMapping("/profiles")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> getAllProfilesOfChatRooms() {
+        User user;
+        try {
+            user = userService.getCurrentAuthenticatedUser();
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("user not found");
+        }
+        try {
+            List<Profile> profiles = chatService.getAllProfiles(user);
+            return ResponseEntity.ok(profiles);
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Resource not found");
+        }
+    }
+
     @PostMapping("/{chat_room_id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> sendMessageToChatRoom(@Valid @RequestBody MessageDTO messageDTO,
@@ -124,8 +142,8 @@ public class ChatController {
         }
 
         try{
-            //call
-            this.webSocketService.notifyFrontend(messageDTO,chat_room_id);
+//            //call
+//            this.webSocketService.notifyFrontend(messageDTO,chat_room_id);
 
             ChatRoom chatRoom = chatService.pushMessageIntoChatRoom(user, messageDTO, chat_room_id);
 
