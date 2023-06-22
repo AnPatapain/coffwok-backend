@@ -29,7 +29,7 @@ import java.util.Map;
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 //    private String client_app_url = "http://localhost:5173";
-private String client_app_url = "https://www.coffwok.com";
+    private String client_app_url = "https://www.coffwok.com";
 
     private Logger logger = LoggerFactory.getLogger(WebSocketConfig.class);
 
@@ -45,13 +45,14 @@ private String client_app_url = "https://www.coffwok.com";
     }
 
     @Override
-    public void configureMessageBroker(final MessageBrokerRegistry registry){
+    public void configureMessageBroker(final MessageBrokerRegistry registry) {
         registry.enableSimpleBroker("/chatroom");
         registry.setApplicationDestinationPrefixes("/api");
 
     }
+
     @Override
-    public void registerStompEndpoints(final StompEndpointRegistry registry){
+    public void registerStompEndpoints(final StompEndpointRegistry registry) {
         registry.addEndpoint("/web-socket-endpoint")
                 .setAllowedOrigins(client_app_url)
                 .withSockJS();
