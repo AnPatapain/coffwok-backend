@@ -139,6 +139,22 @@ public class ChatServiceImpl implements ChatService{
         return chatRoom;
     }
 
+    public ChatRoom pushMessageIntoChatRoomWithoutUser(MessageDTO messageDTO, String chat_room_id) throws ResourceNotFoundException{
+        // Ensure that chatroom exists
+        ChatRoom chatRoom = chatRoomRepository.findById(chat_room_id)
+                .orElseThrow(() -> new ResourceNotFoundException("chatroom", "id", chat_room_id));
+
+        Message message = new Message(messageDTO.getMessageType(),
+                messageDTO.getLocalDateTime(),
+                messageDTO.getText(),
+                messageDTO.getSenderId(),
+                chat_room_id);
+        chatRoom.addMessage(message);
+        chatRoom = chatRoomRepository.save(chatRoom);
+
+        return chatRoom;
+    }
+
     public ChatRoom deleteAllMessageForUser(User user, String chat_room_id)
             throws ResourceNotFoundException, UnAuthorizedActionException{
         // Ensure that chatroom exists

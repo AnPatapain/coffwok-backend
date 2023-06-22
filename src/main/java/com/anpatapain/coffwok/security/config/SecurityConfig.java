@@ -90,6 +90,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
+                        .requestMatchers("/web-socket-endpoint/**").permitAll()
                         .anyRequest().authenticated()
                 )
 
