@@ -53,8 +53,23 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("user","id",id));
 
-        planService.deletePlan(user.getProfileId());
-        profileService.deleteProfile(user.getPlanId());
+        String planId = user.getPlanId();
+        String profileId = user.getProfileId();
+
+        if(planId != null){
+            try {
+                planService.deletePlan(planId);
+            }catch (ResourceNotFoundException e){
+                throw e;
+            }
+        }
+        if(profileId!=null) {
+            try {
+                profileService.deleteProfile(profileId);
+            }catch (ResourceNotFoundException e){
+                throw e;
+            }
+        }
         userRepository.deleteById(id);
     }
 }
