@@ -53,7 +53,7 @@ public class ProfileImageController {
         EntityModel<Profile> profileEntityModel;
         try {
             profileEntityModel = profileService.uploadImage(profileId, imageFile);
-        }catch (ImageUploadException e) {
+        }catch (ImageUploadException | ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
         }
         return ResponseEntity.ok(profileEntityModel);
