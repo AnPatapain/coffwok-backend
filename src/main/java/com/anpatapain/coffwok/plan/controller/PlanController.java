@@ -47,7 +47,7 @@ public class PlanController {
             return ResponseEntity.badRequest().body(e.getMessage() + "user not found");
         }
         if(user.getPlanId() == null) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("profile not found for user");
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("plan not found for user");
         }
 
         try {

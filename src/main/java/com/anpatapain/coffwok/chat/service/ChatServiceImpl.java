@@ -99,17 +99,31 @@ public class ChatServiceImpl implements ChatService{
                 .stream()
                 .map(chatRoom -> {
                     if(chatRoom.getUserId1().equals(user.getId())) {
-                        User user2 = userRepository.findById(chatRoom.getUserId2())
-                                .orElseThrow(() -> new ResourceNotFoundException("user", "id", chatRoom.getUserId2()));
-                        Profile profileUser2 = profileRepository.findById(user2.getProfileId())
-                                .orElseThrow(() -> new ResourceNotFoundException("profile", "id", user2.getProfileId()));
-                        return profileUser2;
+                        Optional<User> user2Optional = userRepository.findById(chatRoom.getUserId2());
+                        if(user2Optional.isPresent()) {
+                            User user2 = user2Optional.get();
+                            Optional<Profile> profileUser2Optional = profileRepository.findById(user2.getProfileId());
+                            if(profileUser2Optional.isPresent()) {
+                                return profileUser2Optional.get();
+                            }else {
+                                return null;
+                            }
+                        }else {
+                            return null;
+                        }
                     }
-                    User user1 = userRepository.findById(chatRoom.getUserId1())
-                            .orElseThrow(() -> new ResourceNotFoundException("user", "id", chatRoom.getUserId1()));
-                    Profile profileUser1 = profileRepository.findById(user1.getProfileId())
-                            .orElseThrow(() -> new ResourceNotFoundException("profile", "id", user1.getProfileId()));
-                    return profileUser1;
+                    Optional<User> user1Optional = userRepository.findById(chatRoom.getUserId1());
+                    if(user1Optional.isPresent()) {
+                        User user1 = user1Optional.get();
+                        Optional<Profile> profileUser1Optional = profileRepository.findById(user1.getProfileId());
+                        if(profileUser1Optional.isPresent()) {
+                            return profileUser1Optional.get();
+                        }else {
+                            return null;
+                        }
+                    }else {
+                        return null;
+                    }
                 })
                 .collect(Collectors.toList());
         return profiles;

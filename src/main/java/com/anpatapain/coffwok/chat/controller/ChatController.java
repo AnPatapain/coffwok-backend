@@ -40,6 +40,7 @@ public class ChatController {
 
     /**
      * Return chat room between userId1 and userId2 if existed, create a new one and return if not
+     *
      * @param userId1
      * @param userId2
      * @return ChatRoom
@@ -51,18 +52,18 @@ public class ChatController {
         User user;
         try {
             user = userService.getCurrentAuthenticatedUser();
-        }catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("user not found");
         }
 
-        if( !user.getId().equals(userId1) && !user.getId().equals(userId2) ) {
+        if (!user.getId().equals(userId1) && !user.getId().equals(userId2)) {
             return ResponseEntity.badRequest().body("Unauthorized request");
         }
 
-        try{
+        try {
             ChatRoom chatRoom = chatService.getChatRoomByUserIds(userId1, userId2);
             return ResponseEntity.ok(chatRoom);
-        }catch(ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException e) {
             logger.error("error inside chatController " + e.getMessage());
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
         }
@@ -70,6 +71,7 @@ public class ChatController {
 
     /**
      * Return chat room identified by id
+     *
      * @param id
      * @return ChatRoom
      */
@@ -79,17 +81,17 @@ public class ChatController {
         User user;
         try {
             user = userService.getCurrentAuthenticatedUser();
-        }catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("user not found");
         }
 
         try {
             ChatRoom chatRoom = chatService.getOneByChatRoomId(id);
-            if(!user.getId().equals(chatRoom.getUserId1()) && !user.getId().equals(chatRoom.getUserId2())) {
+            if (!user.getId().equals(chatRoom.getUserId1()) && !user.getId().equals(chatRoom.getUserId2())) {
                 return ResponseEntity.badRequest().body("unauthorized request");
             }
             return ResponseEntity.ok(chatRoom);
-        }catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException e) {
             logger.error("error inside chatController " + e.getMessage());
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
         }
@@ -98,6 +100,7 @@ public class ChatController {
 
     /**
      * return all chat rooms that current user of application has
+     *
      * @return List<ChatRoom>
      */
     @GetMapping("/me")
@@ -106,7 +109,7 @@ public class ChatController {
         User user;
         try {
             user = userService.getCurrentAuthenticatedUser();
-        }catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("user not found");
         }
         List<ChatRoom> chatRooms = chatService.getAllChatRoomsByCurrentUser(user);
@@ -119,15 +122,13 @@ public class ChatController {
         User user;
         try {
             user = userService.getCurrentAuthenticatedUser();
-        }catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("user not found");
         }
-        try {
-            List<Profile> profiles = chatService.getAllProfiles(user);
-            return ResponseEntity.ok(profiles);
-        }catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Resource not found");
-        }
+
+        List<Profile> profiles = chatService.getAllProfiles(user);
+        return ResponseEntity.ok(profiles);
+
     }
 
     @PostMapping("/{chat_room_id}")
@@ -137,21 +138,22 @@ public class ChatController {
         User user;
         try {
             user = userService.getCurrentAuthenticatedUser();
-        }catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("user not found");
         }
 
-        try{
+        try {
             ChatRoom chatRoom = chatService.pushMessageIntoChatRoom(user, messageDTO, chat_room_id);
 
             return ResponseEntity.ok(chatRoom);
-        }catch (ResourceNotFoundException | UnAuthorizedActionException e) {
+        } catch (ResourceNotFoundException | UnAuthorizedActionException e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
         }
     }
 
     /**
      * Delete all current user's message in one specific chat room
+     *
      * @param chat_room_id
      * @return
      */
@@ -161,14 +163,14 @@ public class ChatController {
         User user;
         try {
             user = userService.getCurrentAuthenticatedUser();
-        }catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("user not found");
         }
 
         try {
             ChatRoom chatRoom = chatService.deleteAllMessageForUser(user, chat_room_id);
             return ResponseEntity.ok(chatRoom);
-        }catch (ResourceNotFoundException | UnAuthorizedActionException e) {
+        } catch (ResourceNotFoundException | UnAuthorizedActionException e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
         }
 
