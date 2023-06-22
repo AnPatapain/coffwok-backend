@@ -3,6 +3,7 @@ package com.anpatapain.coffwok.profile.service;
 import com.anpatapain.coffwok.common.exception.ResourceNotFoundException;
 import com.anpatapain.coffwok.image_upload.exception.ImageUploadException;
 import com.anpatapain.coffwok.image_upload.service.ImageStorageService;
+import com.anpatapain.coffwok.plan.exception.NoPlanException;
 import com.anpatapain.coffwok.plan.model.Plan;
 import com.anpatapain.coffwok.plan.repository.PlanRepository;
 import com.anpatapain.coffwok.profile.dto.ProfileInfoDTO;
@@ -106,6 +107,16 @@ public class ProfileServiceImpl implements ProfileService{
 
         profile.setImgUrl(imageUrl);
         profile = profileRepository.save(profile);
+        String userId = profile.getUserId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(()->new ResourceNotFoundException("user","id",userId));
+        String planId = user.getPlanId();
+        if (planId != null){
+            Plan plan = planRepository.findPlanById(planId)
+                    .orElseThrow(()-> new ResourceNotFoundException("plan","id",planId));
+            plan.setImgUrl(imageUrl);
+            planRepository.save(plan);
+        }
 
         return profileAssembler.toModel(profile);
     }
