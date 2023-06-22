@@ -15,12 +15,12 @@ $(document).ready(function() {
 });
 
 function connect() {
-    var socket = new SockJS('/chat');
+    var socket = new SockJS('/web-socket-endpoint');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
         // updateNotificationDisplay();
-        stompClient.subscribe('/topic/{chat_room_id}', function (message) {
+        stompClient.subscribe('/chatroom/{chat_room_id}', function (message) {
             showMessage(JSON.parse(message.body).content);
         });
     });
@@ -49,6 +49,6 @@ function showMessage(message) {
 
 function sendMessage() {
     console.log("sending message");
-    stompClient.send("/app/{chat_room_id}", {}, JSON.stringify({'messageContent': $("#message").val()}));
+    stompClient.send("/api/chat/{chat_room_id}", {}, JSON.stringify({'messageContent': $("#message").val()}));
 }
 

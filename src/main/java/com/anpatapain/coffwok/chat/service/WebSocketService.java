@@ -11,6 +11,6 @@ public interface WebSocketService {
      *  www.coffwok/chatroom1234
      * @param messageDTO
      */
-    public void notifyFrontend(MessageDTO messageDTO, String chat_room_id);
+    public void notifyFrontend(String topic, MessageDTO messageDTO);
 
 }
