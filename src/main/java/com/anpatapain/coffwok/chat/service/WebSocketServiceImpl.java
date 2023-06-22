@@ -17,14 +17,15 @@ public class WebSocketServiceImpl implements WebSocketService{
         this.messagingTemplate= messagingTemplate;
     }
     @Override
-    public void notifyFrontend(MessageDTO messageDTO,String chat_room_id){
-        Map<String, Object> hashMap = new HashMap<>();
-        hashMap.put("messageType", messageDTO.getMessageType());
-        hashMap.put("localDateTime", messageDTO.getLocalDateTime());
-        hashMap.put("text", messageDTO.getText());
-        hashMap.put("senderId", messageDTO.getSenderId());
-
-        messagingTemplate.convertAndSend("/topic/"+chat_room_id,hashMap);
+    public void notifyFrontend(String topic, MessageDTO messageDTO){
+        messagingTemplate.convertAndSend(topic,
+                new MessageDTO(
+                        messageDTO.getMessageType(),
+                        messageDTO.getLocalDateTime(),
+                        messageDTO.getText(),
+                        messageDTO.getSenderId()
+                )
+        );
     }
 
 

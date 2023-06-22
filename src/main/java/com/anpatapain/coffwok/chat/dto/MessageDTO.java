@@ -8,7 +8,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Data
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter @Setter @NoArgsConstructor
 public class MessageDTO {
     @NotNull
     private MessageType messageType;
@@ -18,5 +18,12 @@ public class MessageDTO {
     private String text;
     @NotNull
     private String senderId;
+
+    public MessageDTO(MessageType messageType, LocalDateTime localDateTime, String text, String senderId) {
+        this.messageType = messageType;
+        this.localDateTime = localDateTime;
+        this.text = text;
+        this.senderId = senderId;
+    }
 
 }

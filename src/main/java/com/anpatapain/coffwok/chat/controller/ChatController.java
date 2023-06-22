@@ -142,9 +142,6 @@ public class ChatController {
         }
 
         try{
-//            //call
-//            this.webSocketService.notifyFrontend(messageDTO,chat_room_id);
-
             ChatRoom chatRoom = chatService.pushMessageIntoChatRoom(user, messageDTO, chat_room_id);
 
             return ResponseEntity.ok(chatRoom);
