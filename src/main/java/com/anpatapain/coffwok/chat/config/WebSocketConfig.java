@@ -28,8 +28,8 @@ import java.util.Map;
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-//    private String client_app_url = "http://localhost:5173";
-    private String client_app_url = "https://www.coffwok.com";
+    private String client_app_url = "http://localhost:5173";
+//    private String client_app_url = "https://www.coffwok.com";
 
     private Logger logger = LoggerFactory.getLogger(WebSocketConfig.class);
 
