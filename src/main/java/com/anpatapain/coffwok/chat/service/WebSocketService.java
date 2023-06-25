@@ -4,13 +4,6 @@ import com.anpatapain.coffwok.chat.dto.MessageDTO;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 public interface WebSocketService {
-
-    /***?
-     *  Only use in chat by api only:
-     *  ex: notifyFrontend will be triggered in the below case:
-     *  www.coffwok/chatroom1234
-     * @param messageDTO
-     */
-    public void notifyFrontend(String topic, MessageDTO messageDTO);
+    public void sendMessageToChatRoom(String chat_room_id, String topic, MessageDTO messageDTO);
 
 }
