@@ -17,6 +17,6 @@ public interface ChatService {
     public List<Profile> getAllProfiles(User user);
     public ChatRoom pushMessageIntoChatRoom(User user, MessageDTO messageDTO, String chat_room_id);
     public ChatRoom pushMessageIntoChatRoomWithoutUser(MessageDTO messageDTO, String chat_room_id);
-    public ChatRoom deleteAllMessageForUser(User user, String chat_room_id);
+//    public ChatRoom deleteAllMessageForUser(User user, String chat_room_id);
     public void deleteOneById(String chatRoomId);
 }

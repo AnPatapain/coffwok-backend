@@ -64,13 +64,23 @@ public class ChatServiceImpl implements ChatService{
 
     @Override
     public ChatRoom createChatRoom(String userId1, String userId2) {
-        ChatRoom chatRoom = new ChatRoom(userId1, userId2);
-        chatRoom = chatRoomRepository.save(chatRoom);
-
         User user1 = userRepository.findById(userId1)
                 .orElseThrow(() -> new ResourceNotFoundException("user", "id", userId1));
+
         User user2 = userRepository.findById(userId2)
                 .orElseThrow(() -> new ResourceNotFoundException("user", "id", userId2));
+
+        if(user1.getProfileId() == null || user2.getProfileId() == null) {
+            throw new ResourceNotFoundException("profile", "id", user1.getProfileId());
+        }
+        Profile profile1 = profileRepository.findById(user1.getProfileId())
+                .orElseThrow(() -> new ResourceNotFoundException("profile", "id", user1.getProfileId()));
+
+        Profile profile2 = profileRepository.findById(user2.getProfileId())
+                .orElseThrow(() -> new ResourceNotFoundException("profile", "id", user2.getProfileId()));
+
+        ChatRoom chatRoom = new ChatRoom(profile1, profile2);
+        chatRoom = chatRoomRepository.save(chatRoom);
 
         user1.addChatRoomId(chatRoom.getId());
         user2.addChatRoomId(chatRoom.getId());
@@ -98,32 +108,10 @@ public class ChatServiceImpl implements ChatService{
         List<Profile> profiles = chatRooms
                 .stream()
                 .map(chatRoom -> {
-                    if(chatRoom.getUserId1().equals(user.getId())) {
-                        Optional<User> user2Optional = userRepository.findById(chatRoom.getUserId2());
-                        if(user2Optional.isPresent()) {
-                            User user2 = user2Optional.get();
-                            Optional<Profile> profileUser2Optional = profileRepository.findById(user2.getProfileId());
-                            if(profileUser2Optional.isPresent()) {
-                                return profileUser2Optional.get();
-                            }else {
-                                return null;
-                            }
-                        }else {
-                            return null;
-                        }
+                    if(chatRoom.getProfile1().getUserId().equals(user.getId())) {
+                        return chatRoom.getProfile2();
                     }
-                    Optional<User> user1Optional = userRepository.findById(chatRoom.getUserId1());
-                    if(user1Optional.isPresent()) {
-                        User user1 = user1Optional.get();
-                        Optional<Profile> profileUser1Optional = profileRepository.findById(user1.getProfileId());
-                        if(profileUser1Optional.isPresent()) {
-                            return profileUser1Optional.get();
-                        }else {
-                            return null;
-                        }
-                    }else {
-                        return null;
-                    }
+                    return chatRoom.getProfile1();
                 })
                 .collect(Collectors.toList());
         return profiles;
@@ -136,7 +124,7 @@ public class ChatServiceImpl implements ChatService{
                 .orElseThrow(() -> new ResourceNotFoundException("chatroom", "id", chat_room_id));
 
         // Ensure that current user is member of this chatroom and messageDTO.senderId must be equal to user.id
-        if( ( !user.getId().equals(chatRoom.getUserId1()) && !user.getId().equals(chatRoom.getUserId2()) )
+        if( ( !user.getId().equals(chatRoom.getProfile1().getUserId()) && !user.getId().equals(chatRoom.getProfile2().getUserId()) )
                 || !messageDTO.getSenderId().equals(user.getId()) ) {
             throw new UnAuthorizedActionException("Unauthorized action. You must be in the chat room or sender to do this action");
         }
@@ -169,26 +157,26 @@ public class ChatServiceImpl implements ChatService{
         return chatRoom;
     }
 
-    public ChatRoom deleteAllMessageForUser(User user, String chat_room_id)
-            throws ResourceNotFoundException, UnAuthorizedActionException{
-        // Ensure that chatroom exists
-        ChatRoom chatRoom = chatRoomRepository.findById(chat_room_id)
-                .orElseThrow(() -> new ResourceNotFoundException("chatroom", "id", chat_room_id));
-
-        // Ensure that current user is member of this chatroom
-        if(!user.getId().equals(chatRoom.getUserId1()) && !user.getId().equals(chatRoom.getUserId2())) {
-            throw new UnAuthorizedActionException("Unauthorized action. You must be in the chat room to do this action");
-        }
-
-        List<Message> newMessages = chatRoom.getMessages()
-                .stream()
-                .filter(message -> !message.getSenderId().equals(user.getId()))
-                .collect(Collectors.toList());
-
-        chatRoom.setMessages(newMessages);
-        chatRoom = chatRoomRepository.save(chatRoom);
-        return chatRoom;
-    }
+//    public ChatRoom deleteAllMessageForUser(User user, String chat_room_id)
+//            throws ResourceNotFoundException, UnAuthorizedActionException{
+//        // Ensure that chatroom exists
+//        ChatRoom chatRoom = chatRoomRepository.findById(chat_room_id)
+//                .orElseThrow(() -> new ResourceNotFoundException("chatroom", "id", chat_room_id));
+//
+//        // Ensure that current user is member of this chatroom
+//        if(!user.getId().equals(chatRoom.getUserId1()) && !user.getId().equals(chatRoom.getUserId2())) {
+//            throw new UnAuthorizedActionException("Unauthorized action. You must be in the chat room to do this action");
+//        }
+//
+//        List<Message> newMessages = chatRoom.getMessages()
+//                .stream()
+//                .filter(message -> !message.getSenderId().equals(user.getId()))
+//                .collect(Collectors.toList());
+//
+//        chatRoom.setMessages(newMessages);
+//        chatRoom = chatRoomRepository.save(chatRoom);
+//        return chatRoom;
+//    }
 
     @Override
     public void deleteOneById(String chatRoomId) {
