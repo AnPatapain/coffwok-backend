@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface ChatRoomRepository extends MongoRepository<ChatRoom, String> {
     Optional<ChatRoom> findById(String id);
-    @Query("{$or:  [{'userId1':  ?0, 'userId2':  ?1}, {'userId1':  ?1, 'userId2':  ?0}]}")
+    @Query("{$or:  [{'profile1.userId':  ?0, 'profile2.userId':  ?1}, {'profile1.userId':  ?1, 'profile2.userId':  ?0}]}")
     Optional<ChatRoom> findChatRoomByUserIds(String userId1, String userId2);
 }

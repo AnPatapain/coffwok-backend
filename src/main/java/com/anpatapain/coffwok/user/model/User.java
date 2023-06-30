@@ -1,5 +1,6 @@
 package com.anpatapain.coffwok.user.model;
 
+import com.anpatapain.coffwok.notification.model.Notification;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -40,8 +41,26 @@ public class User {
 
     private List<String> chatRoomIds = new ArrayList<>();
 
+    private List<Notification> notificationList = new ArrayList<>();
+
     public void addChatRoomId(String chatRoomId) {
         chatRoomIds.add(chatRoomId);
+    }
+
+    public void addNotification(Notification notification) {
+        boolean exists = notificationList.stream()
+                .anyMatch(n -> n.getChatRoomId().equals(notification.getChatRoomId()));
+
+        if (!exists) {
+            notificationList.add(notification);
+        }else {
+            removeNotification(notification.getChatRoomId());
+            notificationList.add(notification);
+        }
+    }
+
+    public void removeNotification(String chatRoomId) {
+        notificationList.removeIf(n -> n.getChatRoomId().equals(chatRoomId));
     }
 
     public User(String email, String password) {

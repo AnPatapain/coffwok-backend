@@ -87,7 +87,7 @@ public class ChatController {
 
         try {
             ChatRoom chatRoom = chatService.getOneByChatRoomId(id);
-            if (!user.getId().equals(chatRoom.getUserId1()) && !user.getId().equals(chatRoom.getUserId2())) {
+            if (!user.getId().equals(chatRoom.getProfile1().getUserId()) && !user.getId().equals(chatRoom.getProfile2().getUserId())) {
                 return ResponseEntity.badRequest().body("unauthorized request");
             }
             return ResponseEntity.ok(chatRoom);
@@ -151,28 +151,28 @@ public class ChatController {
         }
     }
 
-    /**
-     * Delete all current user's message in one specific chat room
-     *
-     * @param chat_room_id
-     * @return
-     */
-    @DeleteMapping("/{chat_room_id}")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> deleteAllMessagesOfCurrentUser(@PathVariable String chat_room_id) {
-        User user;
-        try {
-            user = userService.getCurrentAuthenticatedUser();
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("user not found");
-        }
-
-        try {
-            ChatRoom chatRoom = chatService.deleteAllMessageForUser(user, chat_room_id);
-            return ResponseEntity.ok(chatRoom);
-        } catch (ResourceNotFoundException | UnAuthorizedActionException e) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
-        }
-
-    }
+//    /**
+//     * Delete all current user's message in one specific chat room
+//     *
+//     * @param chat_room_id
+//     * @return
+//     */
+//    @DeleteMapping("/{chat_room_id}")
+//    @PreAuthorize("hasRole('USER')")
+//    public ResponseEntity<?> deleteAllMessagesOfCurrentUser(@PathVariable String chat_room_id) {
+//        User user;
+//        try {
+//            user = userService.getCurrentAuthenticatedUser();
+//        } catch (ResourceNotFoundException e) {
+//            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("user not found");
+//        }
+//
+//        try {
+//            ChatRoom chatRoom = chatService.deleteAllMessageForUser(user, chat_room_id);
+//            return ResponseEntity.ok(chatRoom);
+//        } catch (ResourceNotFoundException | UnAuthorizedActionException e) {
+//            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
+//        }
+//
+//    }
 }

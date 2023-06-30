@@ -41,12 +41,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public WebSocketConfig(JwtUtils jwtUtils, CustomUserDetailsService customUserDetailsService) {
         this.jwtUtils = jwtUtils;
         this.customUserDetailsService = customUserDetailsService;
-        logger.info("Web Socket config created with args-constructor");
     }
 
     @Override
     public void configureMessageBroker(final MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/chatroom");
+        registry.enableSimpleBroker("/chatroom", "/notification");
         registry.setApplicationDestinationPrefixes("/api");
 
     }
