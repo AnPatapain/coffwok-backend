@@ -3,11 +3,23 @@ spring:
     mongodb:
       uri: mongodb+srv://Cluster46068:Keanlk192002%40nkalk192002@cluster46068.xxm5ube.mongodb.net/?retryWrites=true&w=majority
       database: coffwok_dev
-#    mongodb:
-#      host: localhost
-#      port: 27017
-#      database: coffwok_dev
-#      authentication-database: admin
+  #    mongodb:
+  #      host: localhost
+  #      port: 27017
+  #      database: coffwok_dev
+  #      authentication-database: admin
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: nkalk192002@gmail.com
+    password: ebipqgmwuoluasgp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 
   servlet:
     multipart:
