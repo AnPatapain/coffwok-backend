@@ -15,4 +15,7 @@ public class PlanDto {
 
     @NotNull
     private String schedule;
+
+    @NotNull
+    private String planDetails;
 }

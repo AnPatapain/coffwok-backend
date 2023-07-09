@@ -60,7 +60,8 @@ public class PlanServiceImpl implements PlanService{
 
             Plan plan = new Plan(
                     planDto.getCoffeeShop(),
-                    planDto.getSchedule()
+                    planDto.getSchedule(),
+                    planDto.getPlanDetails()
             );
 
             plan.setName(profile.getName());
@@ -113,6 +114,9 @@ public class PlanServiceImpl implements PlanService{
         }
         if(updatePlanDTO.getCoffeeShop()!= null && !updatePlanDTO.getCoffeeShop().isEmpty() ){
             existingPlan.setCoffeeShop(updatePlanDTO.getCoffeeShop());
+        }
+        if(updatePlanDTO.getPlanDetails()!= null && !updatePlanDTO.getPlanDetails().isEmpty() ){
+            existingPlan.setPlanDetails(updatePlanDTO.getPlanDetails());
         }
     }
 }

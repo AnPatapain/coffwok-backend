@@ -33,10 +33,14 @@ public class Plan {
     @NotBlank
     private String schedule;
 
+    @NotBlank
+    private String planDetails;
+
 
     // Construct Plan by DTO
-    public Plan(String coffeeShop, String schedule) {
+    public Plan(String coffeeShop, String schedule, String planDetails) {
         this.coffeeShop = coffeeShop;
         this.schedule = schedule;
+        this.planDetails = planDetails;
     }
 }
