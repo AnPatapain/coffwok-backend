@@ -1,5 +1,7 @@
 package com.anpatapain.coffwok.profile.service;
 
+import com.anpatapain.coffwok.chat.model.ChatRoom;
+import com.anpatapain.coffwok.chat.service.ChatService;
 import com.anpatapain.coffwok.common.exception.ResourceNotFoundException;
 import com.anpatapain.coffwok.image_upload.exception.ImageUploadException;
 import com.anpatapain.coffwok.image_upload.service.ImageStorageService;
@@ -23,7 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Service
-public class ProfileServiceImpl implements ProfileService{
+public class ProfileServiceImpl implements ProfileService {
     private ProfileRepository profileRepository;
     private UserRepository userRepository;
 
@@ -32,6 +34,8 @@ public class ProfileServiceImpl implements ProfileService{
     private ImageStorageService imageStorageService;
 
     private PlanRepository planRepository;
+
+    private ChatService chatService;
 
     private Validator validator;
 
@@ -43,13 +47,15 @@ public class ProfileServiceImpl implements ProfileService{
                               ProfileAssembler profileAssembler,
                               ImageStorageService imageStorageService,
                               Validator validator,
-                              PlanRepository planRepository) {
+                              PlanRepository planRepository,
+                              ChatService chatService) {
         this.profileRepository = profileRepository;
         this.userRepository = userRepository;
         this.profileAssembler = profileAssembler;
         this.imageStorageService = imageStorageService;
         this.validator = validator;
         this.planRepository = planRepository;
+        this.chatService = chatService;
     }
 
 
@@ -79,7 +85,7 @@ public class ProfileServiceImpl implements ProfileService{
                 profileInfoDTO.getStrength_subjects(),
                 profileInfoDTO.getWeak_subjects()
         );
-        if(profileInfoDTO.getGender() != null && !profileInfoDTO.getGender().isEmpty()) {
+        if (profileInfoDTO.getGender() != null && !profileInfoDTO.getGender().isEmpty()) {
             profile.setGender(profileInfoDTO.getGender());
         }
 
@@ -90,8 +96,10 @@ public class ProfileServiceImpl implements ProfileService{
         userRepository.save(user);
         return profileAssembler.toModel(profile);
     }
+
     @Override
     public EntityModel<Profile> uploadImage(String profileId, MultipartFile imageFile) {
+        // Update Profile
         Profile profile = profileRepository.findById(profileId)
                 .orElseThrow(() -> new ResourceNotFoundException("profile", "id", profileId));
 
@@ -99,24 +107,28 @@ public class ProfileServiceImpl implements ProfileService{
         try {
             imageUrl = imageStorageService.saveToCloudinary(imageFile);
             logger.info("cloudinary url: " + imageUrl);
-        }catch (ImageUploadException e) {
+        } catch (ImageUploadException e) {
             String message = "Could not upload " + imageFile.getOriginalFilename();
             logger.error(message);
             throw e;
         }
-
         profile.setImgUrl(imageUrl);
         profile = profileRepository.save(profile);
+
+        // Update Plan that is associated to Profile
         String userId = profile.getUserId();
         User user = userRepository.findById(userId)
-                .orElseThrow(()->new ResourceNotFoundException("user","id",userId));
+                .orElseThrow(() -> new ResourceNotFoundException("user", "id", userId));
         String planId = user.getPlanId();
-        if (planId != null){
+        if (planId != null) {
             Plan plan = planRepository.findPlanById(planId)
-                    .orElseThrow(()-> new ResourceNotFoundException("plan","id",planId));
+                    .orElseThrow(() -> new ResourceNotFoundException("plan", "id", planId));
             plan.setImgUrl(imageUrl);
             planRepository.save(plan);
         }
+
+        //Update ChatRoom that profile is belong to
+        chatService.updateProfileForCurrentUser(user, profile);
 
         return profileAssembler.toModel(profile);
     }
@@ -135,28 +147,30 @@ public class ProfileServiceImpl implements ProfileService{
 
     @Override
     public EntityModel<Profile> patchProfile(String id, ProfileInfoDTO partialUpdatedProfileInfoDTO) {
-
+        // Update Profile
         Profile existingProfile = profileRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("profile", "id", id));
 
         updateProfileProperties(existingProfile, partialUpdatedProfileInfoDTO);
-
         Profile updatedProfile = profileRepository.save(existingProfile);
+
+        // Update Plan that associates to Profile
         String userId = updatedProfile.getUserId();
         User user = userRepository.findById(userId)
-                .orElseThrow(()->new ResourceNotFoundException("user","id",userId));
+                .orElseThrow(() -> new ResourceNotFoundException("user", "id", userId));
 
         String planId = user.getPlanId();
         Plan existingPlan = planRepository.findPlanById(planId)
-                    .orElseThrow(()->new ResourceNotFoundException("plan","id",planId));
+                .orElseThrow(() -> new ResourceNotFoundException("plan", "id", planId));
 
-            existingPlan.setName(updatedProfile.getName());
-            existingPlan.setSchool(updatedProfile.getSchool());
-            existingPlan.setStrength_subjects(updatedProfile.getStrength_subjects());
-            existingPlan.setWeak_subjects(updatedProfile.getWeak_subjects());
-            planRepository.save(existingPlan);
+        existingPlan.setName(updatedProfile.getName());
+        existingPlan.setSchool(updatedProfile.getSchool());
+        existingPlan.setStrength_subjects(updatedProfile.getStrength_subjects());
+        existingPlan.setWeak_subjects(updatedProfile.getWeak_subjects());
+        planRepository.save(existingPlan);
 
-
+        // Update all chatroom that profile is belong to
+        chatService.updateProfileForCurrentUser(user, updatedProfile);
 
         return profileAssembler.toModel(updatedProfile);
     }
