@@ -157,6 +157,20 @@ public class ChatServiceImpl implements ChatService{
         return chatRoom;
     }
 
+    @Override
+    public void updateProfileForCurrentUser(User user, Profile newProfile) {
+        List<ChatRoom> chatRooms = getAllChatRoomsByCurrentUser(user);
+        chatRooms.stream().forEach(chatRoom -> {
+            if(chatRoom.getProfile1().getUserId().equals(user.getId())) {
+                chatRoom.setProfile1(newProfile);
+                chatRoomRepository.save(chatRoom);
+            }else if (chatRoom.getProfile2().getUserId().equals(user.getId())) {
+                chatRoom.setProfile2(newProfile);
+                chatRoomRepository.save(chatRoom);
+            }
+        });
+    }
+
 //    public ChatRoom deleteAllMessageForUser(User user, String chat_room_id)
 //            throws ResourceNotFoundException, UnAuthorizedActionException{
 //        // Ensure that chatroom exists
