@@ -69,6 +69,7 @@ public class PlanServiceImpl implements PlanService{
             plan.setImgUrl(profile.getImgUrl());
             plan.setStrength_subjects(profile.getStrength_subjects());
             plan.setWeak_subjects(profile.getWeak_subjects());
+            plan.setAbout(profile.getAbout());
 
             plan.setUserId(user.getId());
             plan = planRepository.save(plan);

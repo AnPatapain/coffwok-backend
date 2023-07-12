@@ -23,6 +23,8 @@ public class Plan {
 
     private String school;
 
+    private String about;
+
     private String[] strength_subjects;
 
     private String[] weak_subjects;

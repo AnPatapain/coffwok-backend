@@ -80,7 +80,6 @@ public class ProfileServiceImpl implements ProfileService {
         Profile profile = new Profile(
                 profileInfoDTO.getName(),
                 profileInfoDTO.getAbout(),
-                profileInfoDTO.getDob(),
                 profileInfoDTO.getSchool(),
                 profileInfoDTO.getStrength_subjects(),
                 profileInfoDTO.getWeak_subjects()
@@ -167,6 +166,7 @@ public class ProfileServiceImpl implements ProfileService {
         existingPlan.setSchool(updatedProfile.getSchool());
         existingPlan.setStrength_subjects(updatedProfile.getStrength_subjects());
         existingPlan.setWeak_subjects(updatedProfile.getWeak_subjects());
+        existingPlan.setAbout(updatedProfile.getAbout());
         planRepository.save(existingPlan);
 
         // Update all chatroom that profile is belong to
@@ -195,9 +195,6 @@ public class ProfileServiceImpl implements ProfileService {
         }
         if (updatedProfileInfoDTO.getAbout() != null && !updatedProfileInfoDTO.getAbout().isEmpty()) {
             existingProfile.setAbout(updatedProfileInfoDTO.getAbout());
-        }
-        if (updatedProfileInfoDTO.getDob() != null && !updatedProfileInfoDTO.getDob().isEmpty()) {
-            existingProfile.setDob(updatedProfileInfoDTO.getDob());
         }
         if (updatedProfileInfoDTO.getSchool() != null && !updatedProfileInfoDTO.getSchool().isEmpty()) {
             existingProfile.setSchool(updatedProfileInfoDTO.getSchool());

@@ -16,9 +16,6 @@ public class ProfileInfoDTO {
     private String about;
 
     @NotBlank
-    private String dob;
-
-    @NotBlank
     private String school;
 
     private String gender;
