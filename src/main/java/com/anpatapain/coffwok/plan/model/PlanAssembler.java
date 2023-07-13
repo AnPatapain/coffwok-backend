@@ -14,7 +14,7 @@ public class PlanAssembler implements RepresentationModelAssembler<Plan, EntityM
     public EntityModel<Plan> toModel(Plan plan) {
         return EntityModel.of(plan,
                 linkTo(methodOn(PlanController.class).one(plan.getId())).withSelfRel(),
-                linkTo(methodOn(PlanController.class).all()).withRel("plans")
+                linkTo(methodOn(PlanController.class).all(0, 2)).withRel("plans")
         );
     }
 }

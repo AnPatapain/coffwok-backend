@@ -5,7 +5,6 @@ import com.anpatapain.coffwok.common.payload.response.ApiResponse;
 import com.anpatapain.coffwok.plan.dto.PlanDto;
 import com.anpatapain.coffwok.plan.model.Plan;
 import com.anpatapain.coffwok.plan.service.PlanService;
-import com.anpatapain.coffwok.profile.model.Profile;
 import com.anpatapain.coffwok.user.model.User;
 import com.anpatapain.coffwok.user.service.UserService;
 import jakarta.validation.Valid;
@@ -18,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -60,9 +58,10 @@ public class PlanController {
 
     @GetMapping("")
     @PreAuthorize("hasRole('USER')")
-    public CollectionModel<EntityModel<Plan>> all() {
-        List<EntityModel<Plan>> planEntities = planService.getAll();
-        return CollectionModel.of(planEntities, linkTo(methodOn(PlanController.class).all()).withRel("plans"));
+    public CollectionModel<EntityModel<Plan>> all(@RequestParam(defaultValue = "0") int page,
+                                                  @RequestParam(defaultValue = "2") int size) {
+        List<EntityModel<Plan>> planEntities = planService.getAll(page, size);
+        return CollectionModel.of(planEntities, linkTo(methodOn(PlanController.class).all(0, 2)).withRel("plans"));
     }
 
     @GetMapping("/{id}")
