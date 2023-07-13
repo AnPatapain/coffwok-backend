@@ -4,6 +4,7 @@ import com.anpatapain.coffwok.common.exception.ResourceNotFoundException;
 import com.anpatapain.coffwok.plan.dto.PlanDto;
 import com.anpatapain.coffwok.plan.model.Plan;
 import com.anpatapain.coffwok.plan.model.PlanAssembler;
+import com.anpatapain.coffwok.plan.repository.CustomPlanRepo;
 import com.anpatapain.coffwok.plan.repository.PlanRepository;
 import com.anpatapain.coffwok.profile.model.Profile;
 import com.anpatapain.coffwok.profile.repository.ProfileRepository;
@@ -16,7 +17,9 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PlanServiceImpl implements PlanService{
@@ -26,23 +29,28 @@ public class PlanServiceImpl implements PlanService{
     private PlanAssembler planAssembler;
     private PlanRepository planRepository;
 
+    private CustomPlanRepo customPlanRepo;
+
     @Autowired
     public PlanServiceImpl(UserRepository userRepository,
                            PlanAssembler planAssembler,
                            ProfileRepository profileRepository,
-                           PlanRepository planRepository) {
+                           PlanRepository planRepository,
+                           CustomPlanRepo customPlanRepo) {
         this.userRepository = userRepository;
         this.planAssembler = planAssembler;
         this.planRepository = planRepository;
         this.profileRepository = profileRepository;
+        this.customPlanRepo = customPlanRepo;
     }
 
     @Override
-    public List<EntityModel<Plan>> getAll() {
-        List<EntityModel<Plan>> planEntities = this.planRepository.findAll()
+    public List<EntityModel<Plan>> getAll(int pageNumber, int pageSize) {
+        List<EntityModel<Plan>> planEntities = this.customPlanRepo.getAll(pageNumber, pageSize)
                 .stream()
                 .map(this.planAssembler::toModel)
-                .toList();
+                .collect(Collectors.toList());
+        Collections.shuffle(planEntities);
         return planEntities;
     }
 

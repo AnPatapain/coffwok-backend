@@ -8,7 +8,7 @@ import org.springframework.hateoas.EntityModel;
 import java.util.List;
 
 public interface PlanService {
-    public List<EntityModel<Plan>> getAll();
+    public List<EntityModel<Plan>> getAll(int pageNumber, int pageSize);
     public EntityModel<Plan> getOne(String id);
     public EntityModel<Plan> createPlan(User user, PlanDto planDto);
     public void deletePlan(String id);
