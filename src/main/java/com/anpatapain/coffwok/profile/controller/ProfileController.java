@@ -66,9 +66,10 @@ public class ProfileController {
 
     @GetMapping("")
     @PreAuthorize("hasRole('USER')")
-    public CollectionModel<EntityModel<Profile>> all() {
-        List<EntityModel<Profile>> profileEntities = profileService.getAll();
-        return CollectionModel.of(profileEntities, linkTo(methodOn(ProfileController.class).all()).withRel("profiles"));
+    public CollectionModel<EntityModel<Profile>> all(@RequestParam(defaultValue = "0") int page,
+                                                     @RequestParam(defaultValue = "10") int size) {
+        List<EntityModel<Profile>> profileEntities = profileService.getAll(page, size);
+        return CollectionModel.of(profileEntities, linkTo(methodOn(ProfileController.class).all(0, 10)).withRel("profiles"));
     }
 
     @GetMapping("/{id}")
