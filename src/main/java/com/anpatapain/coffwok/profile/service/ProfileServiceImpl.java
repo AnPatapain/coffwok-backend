@@ -11,6 +11,7 @@ import com.anpatapain.coffwok.plan.repository.PlanRepository;
 import com.anpatapain.coffwok.profile.dto.ProfileInfoDTO;
 import com.anpatapain.coffwok.profile.model.Profile;
 import com.anpatapain.coffwok.profile.model.ProfileAssembler;
+import com.anpatapain.coffwok.profile.repository.CustomProfileRepo;
 import com.anpatapain.coffwok.profile.repository.ProfileRepository;
 import com.anpatapain.coffwok.user.repository.UserRepository;
 import com.anpatapain.coffwok.user.model.User;
@@ -22,11 +23,15 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProfileServiceImpl implements ProfileService {
     private ProfileRepository profileRepository;
+
+    private CustomProfileRepo customProfileRepo;
     private UserRepository userRepository;
 
     private ProfileAssembler profileAssembler;
@@ -48,7 +53,8 @@ public class ProfileServiceImpl implements ProfileService {
                               ImageStorageService imageStorageService,
                               Validator validator,
                               PlanRepository planRepository,
-                              ChatService chatService) {
+                              ChatService chatService,
+                              CustomProfileRepo customProfileRepo) {
         this.profileRepository = profileRepository;
         this.userRepository = userRepository;
         this.profileAssembler = profileAssembler;
@@ -56,15 +62,17 @@ public class ProfileServiceImpl implements ProfileService {
         this.validator = validator;
         this.planRepository = planRepository;
         this.chatService = chatService;
+        this.customProfileRepo = customProfileRepo;
     }
 
 
     @Override
-    public List<EntityModel<Profile>> getAll() {
-        List<EntityModel<Profile>> profileEntities = profileRepository.findAll()
+    public List<EntityModel<Profile>> getAll(int page, int pageSize) {
+        List<EntityModel<Profile>> profileEntities = customProfileRepo.getAll(page, pageSize)
                 .stream()
                 .map(profileAssembler::toModel)
-                .toList();
+                .collect(Collectors.toList());
+        Collections.shuffle(profileEntities);
         return profileEntities;
     }
 

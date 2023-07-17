@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface ProfileService {
-    public List<EntityModel<Profile>> getAll();
+    public List<EntityModel<Profile>> getAll(int page, int pageSize);
     public EntityModel<Profile> getOne(String id);
     public EntityModel<Profile> createProfile(User user, ProfileInfoDTO profileDTO);
     public void deleteProfile(String id);
