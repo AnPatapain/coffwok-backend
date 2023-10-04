@@ -2,7 +2,6 @@ package com.anpatapain.coffwok.notification.service;
 
 import com.anpatapain.coffwok.chat.dto.MessageDTO;
 import com.anpatapain.coffwok.notification.model.Notification;
-import com.anpatapain.coffwok.notification.service.NotificationService;
 import com.anpatapain.coffwok.user.model.User;
 import com.anpatapain.coffwok.user.repository.UserRepository;
 import com.anpatapain.coffwok.user.service.UserService;
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class NotificationServiceImpl implements NotificationService {
+public class InAppNotificationService implements NotificationService {
     private SimpMessagingTemplate messagingTemplate;
 
     private UserService userService;
@@ -21,9 +20,9 @@ public class NotificationServiceImpl implements NotificationService {
     private UserRepository userRepository;
 
     @Autowired
-    public NotificationServiceImpl(SimpMessagingTemplate messagingTemplate,
-                                   UserService userService,
-                                   UserRepository userRepository) {
+    public InAppNotificationService(SimpMessagingTemplate messagingTemplate,
+                                    UserService userService,
+                                    UserRepository userRepository) {
         this.messagingTemplate = messagingTemplate;
         this.userService = userService;
         this.userRepository = userRepository;
