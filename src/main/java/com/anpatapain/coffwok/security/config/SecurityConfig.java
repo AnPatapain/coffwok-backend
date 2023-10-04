@@ -88,6 +88,7 @@ public class SecurityConfig {
                 .httpBasic().disable()
                 .exceptionHandling().authenticationEntryPoint(authTokenEntryPoint).and()
                 .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/api/profiles").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/web-socket-endpoint/**").permitAll()

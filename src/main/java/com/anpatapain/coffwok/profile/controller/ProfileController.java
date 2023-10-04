@@ -65,7 +65,7 @@ public class ProfileController {
     }
 
     @GetMapping("")
-    @PreAuthorize("hasRole('USER')")
+//    @PreAuthorize("hasRole('USER')")
     public CollectionModel<EntityModel<Profile>> all(@RequestParam(defaultValue = "0") int page,
                                                      @RequestParam(defaultValue = "10") int size) {
         List<EntityModel<Profile>> profileEntities = profileService.getAll(page, size);
