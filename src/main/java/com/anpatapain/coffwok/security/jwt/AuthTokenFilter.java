@@ -33,11 +33,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String jwt = parseJwt(request);
-        logger.info("jwt: " + jwt);
         if(jwt != null && jwtUtils.validateJwtToken(jwt)) {
             String userId = jwtUtils.getUserIdFromJwtToken(jwt);
-            logger.info("userId: " + userId);
-
             try {
                 UserDetails userDetails = customUserDetailsService.loadUserByUserId(userId);
                 UsernamePasswordAuthenticationToken authenticationToken =

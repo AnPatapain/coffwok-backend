@@ -28,13 +28,16 @@ import java.util.Map;
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-//    private String client_app_url = "http://localhost:5173";
-    private String client_app_url = "https://www.coffwok.com";
+    private String client_app_url = "http://localhost:5173";
+//    private String client_app_url = "https://www.coffwok.com";
     private Logger logger = LoggerFactory.getLogger(WebSocketConfig.class);
 
     private JwtUtils jwtUtils;
 
     private CustomUserDetailsService customUserDetailsService;
+
+    public static String chatTopic = "/chatroom";
+    public static String notificationTopic = "/notification";
 
     @Autowired
     public WebSocketConfig(JwtUtils jwtUtils, CustomUserDetailsService customUserDetailsService) {
@@ -44,7 +47,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(final MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/chatroom", "/notification");
+        registry.enableSimpleBroker(chatTopic, notificationTopic);
         registry.setApplicationDestinationPrefixes("/api");
 
     }

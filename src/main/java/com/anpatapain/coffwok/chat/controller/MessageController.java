@@ -1,5 +1,7 @@
 package com.anpatapain.coffwok.chat.controller;
 
+import com.anpatapain.coffwok.chat.aop.Notify;
+import com.anpatapain.coffwok.chat.config.WebSocketConfig;
 import com.anpatapain.coffwok.chat.dto.MessageDTO;
 import com.anpatapain.coffwok.chat.model.ChatRoom;
 import com.anpatapain.coffwok.chat.service.ChatService;
@@ -16,39 +18,18 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 public class MessageController {
-    private WebSocketService webSocketService;
-    private ChatService chatService;
-
-    private NotificationService notificationService;
-
-
-    private Logger logger = LoggerFactory.getLogger(MessageController.class);
+    private final WebSocketService webSocketService;
 
     @Autowired
-    public MessageController(WebSocketService webSocketService,
-                             ChatService chatService,
-                             NotificationService notificationService) {
+    public MessageController(WebSocketService webSocketService) {
         this.webSocketService = webSocketService;
-        this.chatService = chatService;
-        this.notificationService = notificationService;
     }
 
     @MessageMapping("/chat/{chat_room_id}")
+    @Notify
     public void getMessage(@DestinationVariable("chat_room_id") String chat_room_id, MessageDTO messageDTO) throws InterruptedException {
         Thread.sleep(100);
-        String topic = "/chatroom/" + chat_room_id;
-        logger.info(topic + " " + messageDTO.getText());
-
-        try {
-            webSocketService.sendMessageToChatRoom(chat_room_id, topic, messageDTO);
-            ChatRoom chatRoom = chatService.getOneByChatRoomId(chat_room_id);
-
-            String to_notify_user_id = chatRoom.getProfile1().getUserId().equals(messageDTO.getSenderId()) ?
-                    chatRoom.getProfile2().getUserId() : chatRoom.getProfile1().getUserId();
-
-            notificationService.notifyMessageToUser(to_notify_user_id, chat_room_id, messageDTO);
-        }catch (ResourceNotFoundException e) {
-            throw e;
-        }
+        String topic = WebSocketConfig.chatTopic + "/" + chat_room_id;
+        webSocketService.sendMessageToChatRoom(chat_room_id, topic, messageDTO);
     }
 }
