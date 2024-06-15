@@ -1,53 +1,49 @@
 spring:
   data:
     mongodb:
-      uri: mongodb+srv://Cluster46068:Keanlk192002%40nkalk192002@cluster46068.xxm5ube.mongodb.net/?retryWrites=true&w=majority
-      database: coffwok_dev
-  #    mongodb:
-  #      host: localhost
-  #      port: 27017
-  #      database: coffwok_dev
-  #      authentication-database: admin
+      uri: ${MONGODB_URI}
+      database: ${MONGODB_DATABASE}
+#   mongodb:
+#     host: localhost
+#     port: 27017
+#     database: coffwok_dev
+#     authentication-database: admin
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: nkalk192002@gmail.com
-    password: ebipqgmwuoluasgp
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
-          auth: true
+          auth: ${MAIL_PROPERTIES_MAIL_SMTP_AUTH}
           starttls:
-            enable: true
-
+            enable: ${MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE}
 
   servlet:
     multipart:
-      max-file-size: 4MB
-      max-request-size: 4MB
+      max-file-size: ${SERVLET_MULTIPART_MAX_FILE_SIZE}
+      max-request-size: ${SERVLET_MULTIPART_MAX_REQUEST_SIZE}
 
   security:
     oauth2:
       client:
         registration:
           google:
-            client-id: 16617165058-nci3drur9g8dkd7ij6iv9b197dqomam9.apps.googleusercontent.com
-            client-secret: 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
-            redirect-uri: "{baseUrl}/oauth2/callback/{registrationId}"
+            client-id: ${SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID}
+            client-secret: ${SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET}
+            redirect-uri: ${SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_REDIRECT_URI}
             scope:
-              - email
-              - profile
+              - ${SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_SCOPE}
 
 app:
   cors:
-    allowedOrigins: http://localhost:3000,http://localhost:8080,http://localhost:5173,https://www.coffwok.com,http://www.coffwok.com
+    allowedOrigins: ${APP_CORS_ALLOWED_ORIGINS}
 
   auth:
-    tokenSecret: Keanlk192002
-    tokenExpirationSec: 5184000000
+    tokenSecret: ${APP_AUTH_TOKEN_SECRET}
+    tokenExpirationSec: ${APP_AUTH_TOKEN_EXPIRATION_SEC}
 
   oauth2:
     authorizedRedirectUris:
-      - http://localhost:5173/oauth2/redirect
-      - https://www.coffwok.com/oauth2/redirect
-
+      - ${APP_OAUTH2_AUTHORIZED_REDIRECT_URIS}
